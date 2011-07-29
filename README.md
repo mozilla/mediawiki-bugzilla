@@ -45,6 +45,10 @@ There is also __exploratory__ support for charting:
         }
     </bugzilla>
 
+Screenshot of the above:
+
+![Screenshot of the above](http://i.imgur.com/1H868.png "Screenshot of the above")
+
 Limitations
 ================================
 
