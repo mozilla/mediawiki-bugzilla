@@ -137,7 +137,7 @@ class Bugzilla {
 
     }
 
-    public function _render_error() {
+    private function _render_error() {
         $what = (!empty($this->error)) ? $this->error : 'Unknown Error';
         return "<div class='bugzilla error'>Bugzilla Error: $what</div>";
     }
