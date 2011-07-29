@@ -55,9 +55,9 @@ Limitations
 TODO
 ================================
 
-# This is basically a prototype right now...needs to be cleaned up a lot
-# The JQuery UI table doesn't render correctly...make it better
-# Support more types of queries than just "bug" (the default)
-# Support more types of wiki display than just a bug table
-# Caching and cache invalidation for queries
-# Support charting as a 1st class citizen
+1. This is basically a prototype right now...needs to be cleaned up a lot
+2. The JQuery UI table doesn't render correctly...make it better
+3. Support more types of queries than just "bug" (the default)
+4. Support more types of wiki display than just a bug table
+5. Caching and cache invalidation for queries
+6. Support charting as a 1st class citizen
