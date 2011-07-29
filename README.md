@@ -12,6 +12,20 @@ Requirements
 * Requires HTTP_Request2 from PEAR
 * Requires the SMARTY template library installed
 
+Installation
+================================
+
+*These directions assume your MediaWiki installation is at /var/lib/mediawiki.
+Please substitue your installation path if it is different*
+
+1. Install the requirements above
+2. Check the project out into /var/lib/mediawiki/extensions/Bugzilla
+3. Edit */etc/mediawiki/LocalSettings.php* and add
+    require_once("/var/lib/mediawiki/extensions/Bugzilla/Bugzilla.php");
+4. Edit */etc/mediawiki/LocalSettings.php* and change/override any
+configuration variables. Current configuration variables and their defaults
+can be found at the end of *Bugzilla.php*
+
 Usage
 ================================
 
