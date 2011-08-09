@@ -1,6 +1,5 @@
 <?php
 
-
 // -----------------------------------------------------------------------------
 // Extension credits / metadata
 // -----------------------------------------------------------------------------
@@ -19,19 +18,59 @@ $wgExtensionCredits['other'][] = array(
 // -----------------------------------------------------------------------------
 
 // Register the classes to autoload
-$wgAutoloadClasses['Bugzilla'] = dirname(__FILE__) . '/Bugzilla.class.php';
+$wgAutoloadClasses['Bugzilla']       = dirname(__FILE__) .
+                                        '/Bugzilla.class.php';
+$wgAutoloadClasses['BugzillaQuery']  = dirname(__FILE__) .
+                                        '/BugzillaQuery.class.php';
+$wgAutoloadClasses['BugzillaOutput'] = dirname(__FILE__) .
+                                        '/BugzillaOutput.class.php';
+$wgAutoloadClasses['BugzillaJob']    = dirname(__FILE__) .
+                                        '/BugzillaJob.class.php';
+
+// -----------------------------------------------------------------------------
+// Register our background job
+// -----------------------------------------------------------------------------
+
+$wgJobClasses['queryBugzillaUpdate']  = 'BugzillaUpdateJob';
+$wgJobClasses['queryBugzillaInsert']  = 'BugzillaInsertJob';
+
 
 // -----------------------------------------------------------------------------
 // Register for MediaWiki hooks
 // -----------------------------------------------------------------------------
 
-$wgHooks['BeforePageDisplay'][]   = 'BugzillaIncludeHTML';
-$wgHooks['ParserFirstCallInit'][] = 'BugzillaParserInit';
+$wgHooks['LoadExtensionSchemaUpdates'][] = 'BugzillaCreateCache';
+$wgHooks['BeforePageDisplay'][]          = 'BugzillaIncludeHTML';
+$wgHooks['ParserFirstCallInit'][]        = 'BugzillaParserInit';
 
 // -----------------------------------------------------------------------------
 // Hook work functions
 // -----------------------------------------------------------------------------
 
+// Schema updates for the database cache
+function BugzillaCreateCache( $updater ) {
+    if( $updater === null ) {
+        // <= 1.16 support
+        global $wgExtNewTables;
+        global $wgExtModifiedFields;
+        $wgExtNewTables[] = array(
+            'bugzilla_cache',
+            dirname( __FILE__ ) . '/cache.sql'
+        );
+    }else {
+        // >= 1.17 support
+        $updater->addExtensionUpdate( array( 'addTable',
+                                             'bugzilla_cache',
+                                             dirname( __FILE__ ) . '/cache.sql',
+                                             TRUE )
+        );
+    }
+
+    // Let the other hooks keep processing
+    return TRUE;
+}
+
+// Add content to page HTML
 function BugzillaIncludeHTML( &$out, &$sk ) {
 
     global $wgScriptPath;
@@ -58,12 +97,11 @@ function BugzillaIncludeHTML( &$out, &$sk ) {
     // Add the script to do table magic
     $out->addInlineScript('$(document).ready(function() { 
                     $(".bugzilla").dataTable({
-                                    "bJQueryUI": true,
-                              "sPaginationType": "full_numbers"
+                                    "bJQueryUI": true
                      })});');
 
     // Let the other hooks keep processing
-    return true;
+    return TRUE;
 }
 
 // Hook our callback function into the parser
@@ -74,7 +112,7 @@ function BugzillaParserInit( Parser &$parser ) {
     $parser->setHook( $wgBugzillaTagName, 'BugzillaRender' );
 
     // Let the other hooks keep processing
-    return true;
+    return TRUE;
 }
 
 // Function to be called when our tag is found by the parser
@@ -86,12 +124,9 @@ function BugzillaRender($input, array $args, Parser $parser ) {
     $parser->disableCache();
 
     // Create a new bugzilla object
-    $bz = new Bugzilla($wgBugzillaRESTURL, $args);
+    $bz = Bugzilla::create($args, $input, $parser->getTitle());
 
-    // Talk to bugzilla
-    $bz->fetch($input);
-
-    // Show the results (or an error if there was one)
+    // Show the desired output (or an error if there was one)
     return $bz->render();
 }
 
@@ -103,6 +138,7 @@ function BugzillaRender($input, array $args, Parser $parser ) {
 $wgBugzillaRESTURL     = 'https://api-dev.bugzilla.mozilla.org/latest';
 $wgBugzillaURL         = 'https://bugzilla.mozilla.org';
 $wgBugzillaTagName     = 'bugzilla';
+$wgBugzillaMethod      = 'REST'; // XML-RPC and JSON-RPC may be supported later
 $wgBugzillaUseCache    = TRUE;
 $wgBugzillaCacheMins   = 5;
 $wgBugzillaJqueryTable = FALSE;
@@ -114,4 +150,4 @@ $wgBugzillaSmartyCompileDir  = '/tmp/';
 $wgBugzillaSmartyConfigDir   = dirname(__FILE__) . '/configs/';
 $wgBugzillaSmartyCacheDir    = '/tmp/';
 
-?>
+

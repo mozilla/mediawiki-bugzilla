@@ -13,7 +13,7 @@
         {foreach from=$bugs item=bug}
             <tr>
                 <td>{$bug->id|escape}</td>
-                <td>{$bug->summary|escape}</td>
+                <td><a href="{$bz_url}/showbug.cgi?id={$bug->id|escape:'url'}">{$bug->summary|escape}</a></td>
                 <td>{$bug->status|escape}</td>
                 <td>{$bug->priority|escape}</td>
             </tr>
