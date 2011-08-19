@@ -16,7 +16,7 @@ Installation
 ================================
 
 *These directions assume your MediaWiki installation is at /var/lib/mediawiki.
-Please substitue your installation path if it is different*
+Please substitute your installation path if it is different*
 
 1. Install the requirements above
 2. Check the project out into `/var/lib/mediawiki/extensions/Bugzilla`
