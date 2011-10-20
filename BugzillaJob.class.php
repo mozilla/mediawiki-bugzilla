@@ -31,17 +31,8 @@ class BugzillaInsertJob extends BugzillaJob {
 
     public function _database_work() {
 
-        // Get the master because we are writing
-        $dbw = wfGetDB( DB_MASTER );
-
-        // Add it to the cache
-        $res = $dbw->insert(
-                       'bugzilla_cache',
-                       array('id'         => $this->query->id(),
-                             'fetched_at' => wfTimestamp(TS_DB),
-                             'data'       => serialize($this->query->data)),
-                       __METHOD__
-        );
+        $cache = new BugzillaCacheMysql();
+        $cache->set($this->query->id(), serialize($this->query->data));
 
     }
 
@@ -55,18 +46,8 @@ class BugzillaUpdateJob extends BugzillaJob {
 
     public function _database_work() {
 
-        // Get the master because we are writing
-        $dbw = wfGetDB( DB_MASTER );
-
-        // Update cache entry
-        $res = $dbw->update(
-                        'bugzilla_cache',
-                        array('id'         => $this->query->id(),
-                              'fetched_at' => wfTimestamp(TS_DB),
-                              'data'       => serialize($this->query->data)),
-                        array('id' => $this->query->id()),
-                        __METHOD__
-        );
+        $cache = new BugzillaCacheMysql();
+        $cache->set($this->query->id(), serialize($this->query->data));
 
     }
 }

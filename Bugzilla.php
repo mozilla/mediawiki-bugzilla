@@ -24,6 +24,8 @@ $wgAutoloadClasses['Bugzilla']       = $cwd . '/Bugzilla.class.php';
 $wgAutoloadClasses['BugzillaQuery']  = $cwd . '/BugzillaQuery.class.php';
 $wgAutoloadClasses['BugzillaOutput'] = $cwd . '/BugzillaOutput.class.php';
 $wgAutoloadClasses['BugzillaJob']    = $cwd . '/BugzillaJob.class.php';
+$wgAutoloadClasses['BugzillaCacheI'] = $cwd . '/cache/BugzillaCacheI.class.php';
+$wgAutoloadClasses['BugzillaCacheMysql'] = $cwd . '/cache/BugzillaCacheMysql.class.php';
 
 // -----------------------------------------------------------------------------
 // Register our background job
