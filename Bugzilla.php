@@ -18,14 +18,14 @@ $wgExtensionCredits['other'][] = array(
 // -----------------------------------------------------------------------------
 
 // Register the classes to autoload
-$wgAutoloadClasses['Bugzilla']       = dirname(__FILE__) .
-                                        '/Bugzilla.class.php';
-$wgAutoloadClasses['BugzillaQuery']  = dirname(__FILE__) .
-                                        '/BugzillaQuery.class.php';
-$wgAutoloadClasses['BugzillaOutput'] = dirname(__FILE__) .
-                                        '/BugzillaOutput.class.php';
-$wgAutoloadClasses['BugzillaJob']    = dirname(__FILE__) .
-                                        '/BugzillaJob.class.php';
+$cwd = dirname(__FILE__); // We don't need to do this more than once!
+
+$wgAutoloadClasses['Bugzilla']       = $cwd . '/Bugzilla.class.php';
+$wgAutoloadClasses['BugzillaQuery']  = $cwd . '/BugzillaQuery.class.php';
+$wgAutoloadClasses['BugzillaOutput'] = $cwd . '/BugzillaOutput.class.php';
+$wgAutoloadClasses['BugzillaJob']    = $cwd . '/BugzillaJob.class.php';
+$wgAutoloadClasses['BugzillaCacheI'] = $cwd . '/cache/BugzillaCacheI.class.php';
+$wgAutoloadClasses['BugzillaCacheMysql'] = $cwd . '/cache/BugzillaCacheMysql.class.php';
 
 // -----------------------------------------------------------------------------
 // Register our background job

@@ -70,31 +70,12 @@ abstract class BugzillaBaseQuery {
 
         // Don't do anything if we already had an error
         if( $this->error ) { return; }
-
-        // Connect to the database. Because we are reading and we can deal with
-        // a bit of stale data we can just look at the slave
-        $dbr = wfGetDB( DB_SLAVE );
-
-        // See if we have a cache entry
-        // TODO: Make this configuratble between count(*) and what is here now
-        $res = $dbr->select(
-                    'bugzilla_cache',
-                    array('id', 'fetched_at','data'),
-                    'id = "' . $this->id() . '"',
-                    __METHOD__,
-                    array( 'ORDER BY' => 'fetched_at DESC',
-                           'LIMIT' => 1)
-        );
+        
+        $cache = new BugzillaCacheMysql();
+        $row = $cache->get($this->id());
 
         // If the cache entry is older than this we need to invalidate it
         $expiry = strtotime("-$wgBugzillaCacheMins minutes");
-
-        // Check if there was an entry in the cache
-        if( $res->numRows() ) {
-            $row = $res->fetchRow();
-        }else{
-            $row = FALSE;
-        }
 
         if( !$row ) { 
             // No cache entry
@@ -105,20 +86,9 @@ abstract class BugzillaBaseQuery {
             // Does the Bugzilla query in the background and updates the cache
             $job = new BugzillaInsertJob( $this->title, $params );
             $job->insert();
-
-        }elseif( $expiry > wfTimestamp(TS_UNIX, $row['fetched_at']) ) {
-            // Cache entry is too old
-
-            $this->cached = FALSE;
-            $params = array( 'query_obj' => serialize($this) );
-
-            // Does the Bugzilla query in the background and updates the cache
-            $job = new BugzillaUpdateJob( $this->title, $params );
-            $job->insert();
-
         }else {
             // Cache is good, use it
-
+            
             $this->id = $row['id'];
             $this->fetched_at = wfTimestamp(TS_DB, $row['fetched_at']);
             $this->data = unserialize($row['data']);
