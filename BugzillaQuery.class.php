@@ -1,6 +1,5 @@
 <?php
 
-require_once dirname(__FILE__) . '/BugzillaJob.class.php';
 require_once 'HTTP/Request2.php';
 
 // Factory class
@@ -29,8 +28,18 @@ abstract class BugzillaBaseQuery {
         $this->fetched_at  = FALSE;
         $this->error       = FALSE;
         $this->data        = array();
-
+        $this->cache       = FALSE;
         $this->_set_options($options);
+    }
+
+    protected function _getCache()
+    {
+        global $wgCacheObject;
+        if(!$this->cache) {
+            $this->cache = new $wgCacheObject;
+        }
+        
+        return $this->cache;
     }
 
     public function id() {
@@ -63,7 +72,7 @@ abstract class BugzillaBaseQuery {
     // Connect and fetch the data
     public function fetch() {
 
-        global $wgBugzillaCacheMins, $wgCacheObject;
+        global $wgBugzillaCacheMins;
 
         // We need *some* options to do anything
         if( !isset($this->options) || empty($this->options) ) { return; }
@@ -71,7 +80,7 @@ abstract class BugzillaBaseQuery {
         // Don't do anything if we already had an error
         if( $this->error ) { return; }
         
-        $cache = new $wgCacheObject;
+        $cache = $this->_getCache();
         $row = $cache->get($this->id());
 
         // If the cache entry is older than this we need to invalidate it
@@ -84,8 +93,9 @@ abstract class BugzillaBaseQuery {
             $params = array( 'query_obj' => serialize($this) );
 
             // Does the Bugzilla query in the background and updates the cache
-            $job = new BugzillaInsertJob( $this->title, $params );
-            $job->insert();
+            $this->_fetch_by_options();
+            $this->_update_cache();
+            return $this->data;
         }else {
             // Cache is good, use it
             
@@ -104,6 +114,14 @@ abstract class BugzillaBaseQuery {
         }
         // Object is kinda userless, make it an array
         $this->options = get_object_vars($this->options);
+    }
+    
+    abstract public function _fetch_by_options();
+    
+    protected function _update_cache()
+    {
+        $cache = $this->_getCache();
+        $cache->set($this->id(), serialize($this->data));
     }
 
 }
