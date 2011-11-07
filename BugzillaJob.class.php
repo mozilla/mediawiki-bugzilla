@@ -2,6 +2,8 @@
 
 abstract class BugzillaJob extends Job {
 
+    public $cache;
+
     // Run the job 
     public function run() {
 
@@ -20,6 +22,16 @@ abstract class BugzillaJob extends Job {
 
         return TRUE;
     }
+    
+    protected function _getCache()
+    {
+        global $wgCacheObject;
+        if(!$this->cache) {
+            $this->cache = new $wgCacheObject;
+        }
+        
+        return $this->cache;
+    }
 
 }
 
@@ -31,7 +43,7 @@ class BugzillaInsertJob extends BugzillaJob {
 
     public function _database_work() {
 
-        $cache = new BugzillaCacheMysql();
+        $cache = $this->_getCache();
         $cache->set($this->query->id(), serialize($this->query->data));
 
     }
@@ -46,7 +58,7 @@ class BugzillaUpdateJob extends BugzillaJob {
 
     public function _database_work() {
 
-        $cache = new BugzillaCacheMysql();
+        $cache = $this->_getCache();
         $cache->set($this->query->id(), serialize($this->query->data));
 
     }

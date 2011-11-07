@@ -63,7 +63,7 @@ abstract class BugzillaBaseQuery {
     // Connect and fetch the data
     public function fetch() {
 
-        global $wgBugzillaCacheMins;
+        global $wgBugzillaCacheMins, $wgCacheObject;
 
         // We need *some* options to do anything
         if( !isset($this->options) || empty($this->options) ) { return; }
@@ -71,7 +71,7 @@ abstract class BugzillaBaseQuery {
         // Don't do anything if we already had an error
         if( $this->error ) { return; }
         
-        $cache = new BugzillaCacheMysql();
+        $cache = new $wgCacheObject;
         $row = $cache->get($this->id());
 
         // If the cache entry is older than this we need to invalidate it
