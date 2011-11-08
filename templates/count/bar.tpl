@@ -1,2 +1,5 @@
-{* SMARTY *}
-<img src="http://chart.apis.google.com/chart?cht={$type|escape:'url'}&chs={$size|escape:'url'}&chds=a&chd=t:{$data|escape:'url'}&chxl=1:|{$x_labels|default:''|escape:'url'}&chxt=x,y&chtt={$title|default:''|escape:'url'}" /> 
+<?php
+
+echo "<img src="http://chart.apis.google.com/chart?cht={$response->type}&chs={$response->size}&chds=a&chd=t:{$response->data}&chxl=1:|{$response->x_labels}&chxt=x,y&chtt={$response->title}" />";
+
+ ?> 

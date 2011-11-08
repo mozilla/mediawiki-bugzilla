@@ -143,11 +143,4 @@ $wgBugzillaUseCache    = TRUE;
 $wgBugzillaCacheMins   = 5;
 $wgBugzillaJqueryTable = FALSE;
 
-// We use smarty...
-$wgBugzillaSmartyDir         = '/usr/share/php/smarty/';
-$wgBugzillaSmartyTemplateDir = dirname(__FILE__) . '/templates/';
-$wgBugzillaSmartyCompileDir  = '/tmp/';
-$wgBugzillaSmartyConfigDir   = dirname(__FILE__) . '/configs/';
-$wgBugzillaSmartyCacheDir    = '/tmp/';
-
 

@@ -1,5 +1,3 @@
-{* SMARTY *}
-
 <table class="bugzilla ui-helper-reset">
     <thead>
         <tr>
@@ -10,13 +8,13 @@
         </tr>
     </thead>
     <tbody>
-        {foreach from=$bugs item=bug}
+        <?php foreach($response->bugs as $bug): ?>
             <tr>
-                <td>{$bug->id|escape}</td>
-                <td><a href="{$bz_url}/show_bug.cgi?id={$bug->id|escape:'url'}">{$bug->summary|escape}</a></td>
-                <td>{$bug->status|escape}</td>
-                <td>{$bug->priority|escape}</td>
+                <td><?php echo $bug->id ?></td>
+                <td><a href="<?php echo $bug->url ?>"><?php echo $bug->summary ?></a></td>
+                <td><?php echo $bug->status ?></td>
+                <td><?php echo $bug->priority ?></td>
             </tr>
-        {/foreach}
+        <?php endforeach; ?>    
     </tbody>
 </table>

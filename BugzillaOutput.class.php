@@ -4,9 +4,12 @@ require_once('smarty/Smarty.class.php');
 
 abstract class BugzillaOutput {
 
+    public $response;
+
     public function __construct($config, $options, $title='') {
         $this->title = $title;
         $this->config = $config;
+        $this->response = new stdClass();
 
         // Make our query and possibly fetch the data
         $this->query = BugzillaQuery::create($config['type'], $options, $title);
@@ -24,12 +27,6 @@ abstract class BugzillaOutput {
     }
 
     public function render() {
-        global $wgBugzillaURL;
-        global $wgBugzillaSmartyTemplateDir;
-        global $wgBugzillaSmartyCompileDir;
-        global $wgBugzillaSmartyConfigDir;
-        global $wgBugzillaSmartyCacheDir;
-
         // Get our template path
         $this->template = dirname(__FILE__) . '/templates/' . 
                           $this->config['type'] . '/' . 
@@ -42,21 +39,13 @@ abstract class BugzillaOutput {
             $this->error = 'Invalid type and display combination';
         }
 
-        $this->smarty = new Smarty();
-        $this->smarty->assign('bz_url', $wgBugzillaURL);
-        $this->smarty->template_dir = $wgBugzillaSmartyTemplateDir;
-        $this->smarty->compile_dir  = $wgBugzillaSmartyCompileDir;
-        $this->smarty->config_dir   = $wgBugzillaSmartyConfigDir;
-        $this->smarty->cache_dir    = $wgBugzillaSmartyCacheDir;
-
         $this->_setup_template_data();
 
-        // Bail if we get any errors
-        if( isset($this->error) && !empty($this->error))  {
-            return $this->_render_error();
-        }
-
-        return $this->smarty->fetch($this->template);
+        $response = $this->response;
+        ob_start(); // Start output buffering.
+        require($this->template);
+        $results = ob_get_clean();
+        return $results;
 
     }
 }
@@ -64,7 +53,11 @@ abstract class BugzillaOutput {
 class BugzillaTable extends BugzillaOutput {
 
     public function _setup_template_data() {
-        $this->smarty->assign('bugs', $this->query->data->bugs);
+        if(count($this->query->data->bugs) > 0) {
+            $this->response->bugs = $this->query->data->bugs;
+        } else {
+            $this->response->bugs = array();
+        }
     }
 }
 
@@ -75,11 +68,10 @@ class BugzillaGraph extends BugzillaOutput {
 class BugzillaBarGraph extends BugzillaGraph {
 
     public function _setup_template_data() {
-        $this->smarty->assign('type', 'bhs');
-        #$smarty->assign('type', 'p');
-        $this->smarty->assign('size', '200x300');
-        $this->smarty->assign('x_labels', implode('|', $this->query->data->x_labels));
-        $this->smarty->assign('data', implode(',', $this->query->data->data));
+        $this->response->type = "bhs";
+        $this->response->size = '200x300';
+        $this->response->x_labels = implode('|', $this->query->data->x_labels);
+        $this->response->data = implode(',', $this->query->data->data);
     }
 }
 
