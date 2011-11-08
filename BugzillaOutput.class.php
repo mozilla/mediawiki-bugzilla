@@ -48,6 +48,8 @@ abstract class BugzillaOutput {
         return $results;
 
     }
+    
+    abstract public function _setup_template_data();
 }
 
 class BugzillaTable extends BugzillaOutput {
@@ -61,7 +63,7 @@ class BugzillaTable extends BugzillaOutput {
     }
 }
 
-class BugzillaGraph extends BugzillaOutput {
+abstract class BugzillaGraph extends BugzillaOutput {
 
 }
 
