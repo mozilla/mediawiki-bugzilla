@@ -146,4 +146,6 @@ $wgBugzillaJqueryTable = FALSE;
 // Cache settings
 $wgCacheObject = 'BugzillaCacheDummy';
 
-
+$wgBugzillaChartStorage = realpath($cwd . '/charts');
+$wgBugzillaFontStorage = $cwd . '/pchart/fonts';
+$wgBugzillaChartUrl = $wgScriptPath . '/extensions/Bugzilla/charts';
