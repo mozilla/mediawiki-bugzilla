@@ -153,4 +153,6 @@ $wgBugzillaSmartyCompileDir  = '/tmp/';
 $wgBugzillaSmartyConfigDir   = dirname(__FILE__) . '/configs/';
 $wgBugzillaSmartyCacheDir    = '/tmp/';
 
-
+$wgBugzillaChartStorage = realpath($cwd . '/charts');
+$wgBugzillaFontStorage = $cwd . '/pchart/fonts';
+$wgBugzillaChartUrl = $wgScriptPath . '/extensions/Bugzilla/charts';
