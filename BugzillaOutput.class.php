@@ -1,7 +1,5 @@
 <?php
 
-require_once('smarty/Smarty.class.php');
-
 abstract class BugzillaOutput {
 
     public $response;
