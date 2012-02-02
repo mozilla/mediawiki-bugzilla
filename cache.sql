@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS `bugzilla_cache` (
   `key` varchar(255) NOT NULL DEFAULT '',
   `fetched_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   `data` longtext,
-  `expires` integer(11) NOT NULL DEFAULT 0
+  `expires` integer(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB, DEFAULT CHARSET=binary;
 
