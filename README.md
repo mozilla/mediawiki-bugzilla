@@ -41,6 +41,7 @@ You use this extension in this way:
 
 Examples:
 All P1 bugs in the Bugzilla product:
+
     <bugzilla>
         {
             "product": "Bugzilla",
@@ -49,28 +50,36 @@ All P1 bugs in the Bugzilla product:
     </bugzilla>
 
 All new bugs flagged as uiwanted in the whiteboard:
+
     <bugzilla>
     	{
     	    "whiteboard": "uiwanted",
     	    "status": "NEW"
-	}
+        }
     </bugzilla>
 
 All bugs in the bugzilla.org component that were resolved in 2011:	
+
     <bugzilla>
-	{
-	    "component": "bugzilla.org",
-	    "changed_after": "2011-01-01",
-	    "changed_before": "2011-12-31",
-	    "changed_field": "status",
-	    "changed_field_to": "resolved"
-	}
+        {
+            "component": "bugzilla.org",
+            "changed_after": "2011-01-01",
+            "changed_before": "2011-12-31",
+            "changed_field": "status",
+            "changed_field_to": "resolved"
+        }
     </bugzilla>
 
 Some commonly used query parameters are:
+
 * id
-* component* product* status* resolution* keywords
-* whiteboard* target_milestone
+* component
+* product
+* status
+* resolution
+* keywords
+* whiteboard
+* target_milestone
 * version
 * changed_after
 * changed_before
@@ -106,9 +115,9 @@ Known Issues
 * There is currently no way to specify multiple values for a query parameter
 * Large queries may exceed the allocated memory causing a blank page to be displayed. In this case you can recover by editing the page as follows:
 If your wiki page has the URL 
-https://wiki.mozilla.org/PagePath/PageTitle
-The URL to edit your page is
-https://wiki.mozilla.org/index.php?title=PagePath/PageTitle&action=edit
+    https://wiki.mozilla.org/PagePath/PageTitle
+The URL to edit your page is 
+    https://wiki.mozilla.org/index.php?title=PagePath/PageTitle&action=edit
 
 TODO
 ================================
