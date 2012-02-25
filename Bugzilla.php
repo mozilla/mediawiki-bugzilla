@@ -146,13 +146,6 @@ $wgBugzillaJqueryTable = FALSE;
 // Cache settings
 $wgCacheObject = 'BugzillaCacheDummy';
 
-// We use smarty...
-$wgBugzillaSmartyDir         = '/usr/share/php/smarty/';
-$wgBugzillaSmartyTemplateDir = dirname(__FILE__) . '/templates/';
-$wgBugzillaSmartyCompileDir  = '/tmp/';
-$wgBugzillaSmartyConfigDir   = dirname(__FILE__) . '/configs/';
-$wgBugzillaSmartyCacheDir    = '/tmp/';
-
 $wgBugzillaChartStorage = realpath($cwd . '/charts');
 $wgBugzillaFontStorage = $cwd . '/pchart/fonts';
 $wgBugzillaChartUrl = $wgScriptPath . '/extensions/Bugzilla/charts';
