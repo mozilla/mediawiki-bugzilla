@@ -26,6 +26,7 @@ abstract class BugzillaOutput {
     }
 
     public function render() {
+        global $wgBugzillaURL;
         // Get our template path
         $this->template = dirname(__FILE__) . '/templates/' . 
                           $this->config['type'] . '/' . 
