@@ -76,10 +76,10 @@ function BugzillaIncludeHTML( &$out, &$sk ) {
     global $wgScriptPath;
 
     // Use remote jquery
-    $out->addScript('<script type="text/javascript" src="$wgScriptPath/extensions/Bugzilla/web/jquery/1.6.2/jquery.min.js"></script>');
+    $out->addScriptFile('<script type="text/javascript" src="$wgScriptPath/extensions/Bugzilla/web/jquery/1.6.2/jquery.min.js"></script>');
 
     // Use remote jquery ui
-    $out->addScript('<script type="text/javascript" src="$wgScriptPath/extensions/Bugzilla/web/jqueryui/1.8.14/jquery-ui.min.js"></script>');
+    $out->addScriptFile('<script type="text/javascript" src="$wgScriptPath/extensions/Bugzilla/web/jqueryui/1.8.14/jquery-ui.min.js"></script>');
 
     // Add a local script file for the datatable
     $out->addScriptFile("$wgScriptPath/extensions/Bugzilla/web/js/jquery.dataTables.js" );
@@ -116,13 +116,13 @@ function BugzillaParserInit( Parser &$parser ) {
 }
 
 // Function to be called when our tag is found by the parser
-function BugzillaRender($input, array $args, Parser $parser ) {
+function BugzillaRender($input, array $args, Parser $parser, $frame ) {
     global $wgBugzillaRESTURL;
 
     // We don't want the page to be cached
     // TODO: Not sure if we need this
     $parser->disableCache();
-
+    $input = $parser->recursiveTagParse($input, $frame);
     // Create a new bugzilla object
     $bz = Bugzilla::create($args, $input, $parser->getTitle());
 
