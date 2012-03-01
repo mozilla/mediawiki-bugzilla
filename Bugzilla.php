@@ -75,19 +75,19 @@ function BugzillaIncludeHTML( &$out, &$sk ) {
 
     global $wgScriptPath;
 
-    // Use remote jquery
-    $out->addScriptFile('<script type="text/javascript" src="$wgScriptPath/extensions/Bugzilla/web/jquery/1.6.2/jquery.min.js"></script>');
+    // Use local jquery
+    $out->addScriptFile("$wgScriptPath/extensions/Bugzilla/web/jquery/1.6.2/jquery.min.js");
 
-    // Use remote jquery ui
-    $out->addScriptFile('<script type="text/javascript" src="$wgScriptPath/extensions/Bugzilla/web/jqueryui/1.8.14/jquery-ui.min.js"></script>');
+    // Use local jquery ui
+    $out->addScriptFile("$wgScriptPath/extensions/Bugzilla/web/jqueryui/1.8.14/jquery-ui.min.js");
 
     // Add a local script file for the datatable
-    $out->addScriptFile("$wgScriptPath/extensions/Bugzilla/web/js/jquery.dataTables.js" );
+    $out->addScriptFile("$wgScriptPath/extensions/Bugzilla/web/js/jquery.dataTables.js");
 
-    // Add a remote jquery css file
+    // Add a local jquery css file
     $out->addStyle("$wgScriptPath/extensions/Bugzilla/web/jqueryui/1.8.14/themes/base/jquery-ui.css");
 
-    // Add a remote jquery UI theme css file
+    // Add a local jquery UI theme css file
     $out->addStyle("$wgScriptPath/extensions/Bugzilla/web/jqueryui/1.8.14/themes/smoothness/jquery-ui.css");
 
     // Add local datatable styles
