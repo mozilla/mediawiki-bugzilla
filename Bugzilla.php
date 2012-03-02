@@ -75,19 +75,19 @@ function BugzillaIncludeHTML( &$out, &$sk ) {
 
     global $wgScriptPath;
 
-    // Use remote jquery
-    $out->addScript('<script type="text/javascript" src="$wgScriptPath/extensions/Bugzilla/web/jquery/1.6.2/jquery.min.js"></script>');
+    // Use local jquery
+    $out->addScriptFile("$wgScriptPath/extensions/Bugzilla/web/jquery/1.6.2/jquery.min.js");
 
-    // Use remote jquery ui
-    $out->addScript('<script type="text/javascript" src="$wgScriptPath/extensions/Bugzilla/web/jqueryui/1.8.14/jquery-ui.min.js"></script>');
+    // Use local jquery ui
+    $out->addScriptFile("$wgScriptPath/extensions/Bugzilla/web/jqueryui/1.8.14/jquery-ui.min.js");
 
     // Add a local script file for the datatable
-    $out->addScriptFile("$wgScriptPath/extensions/Bugzilla/web/js/jquery.dataTables.js" );
+    $out->addScriptFile("$wgScriptPath/extensions/Bugzilla/web/js/jquery.dataTables.js");
 
-    // Add a remote jquery css file
+    // Add a local jquery css file
     $out->addStyle("$wgScriptPath/extensions/Bugzilla/web/jqueryui/1.8.14/themes/base/jquery-ui.css");
 
-    // Add a remote jquery UI theme css file
+    // Add a local jquery UI theme css file
     $out->addStyle("$wgScriptPath/extensions/Bugzilla/web/jqueryui/1.8.14/themes/smoothness/jquery-ui.css");
 
     // Add local datatable styles
@@ -116,13 +116,13 @@ function BugzillaParserInit( Parser &$parser ) {
 }
 
 // Function to be called when our tag is found by the parser
-function BugzillaRender($input, array $args, Parser $parser ) {
+function BugzillaRender($input, array $args, Parser $parser, $frame ) {
     global $wgBugzillaRESTURL;
 
     // We don't want the page to be cached
     // TODO: Not sure if we need this
     $parser->disableCache();
-
+    $input = $parser->recursiveTagParse($input, $frame);
     // Create a new bugzilla object
     $bz = Bugzilla::create($args, $input, $parser->getTitle());
 
