@@ -15,9 +15,9 @@
                         <?php echo $bug->id ?>
                     </a>
                 </td>
-                <td><?php echo $bug->summary ?></td>
-                <td><?php echo $bug->status ?></td>
-                <td><?php echo $bug->priority ?></td>
+                <td><?php echo htmlspecialchars($bug->summary) ?></td>
+                <td><?php echo htmlspecialchars($bug->status) ?></td>
+                <td><?php echo htmlspecialchars($bug->priority) ?></td>
             </tr>
         <?php endforeach; ?>    
     </tbody>
