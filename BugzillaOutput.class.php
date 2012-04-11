@@ -6,36 +6,43 @@ abstract class BugzillaOutput {
     public $cache;
     
     public function __construct($config, $options, $title='') {
-        $this->title = $title;
-        $this->config = $config;
+        $this->title    = $title;
+        $this->config   = $config;
+        $this->error    = FALSE;
         $this->response = new stdClass();
 
         // Make our query and possibly fetch the data
         $this->query = BugzillaQuery::create($config['type'], $options, $title);
 
-
-        //error_log($this->query);
-        //error_log($this->query->id());
-        //error_log(print_r($this->query->data, true));
-
+        // Bubble up any query errors
+        if( $this->query->error ) {
+            $this->error = $this->query->error;
+        }
     }
 
-    protected function _render_error() {
-        $what = (!empty($this->error)) ? $this->error : 'Unknown Error';
-        return "<div class='bugzilla error'>Bugzilla Error: $what</div>";
+    protected function _render_error($error) {
+        $this->template = dirname(__FILE__) . '/templates/error.tpl';
+        ob_start(); // Start output buffering.
+        require($this->template);
+        return ob_get_clean();
     }
 
     public function render() {
+
         // Get our template path
         $this->template = dirname(__FILE__) . '/templates/' . 
                           $this->config['type'] . '/' . 
                           $this->config['display'] . '.tpl';
 
-        //error_log($this->template);
-
         // Make sure a template is there
         if( !file_exists($this->template) ) {
             $this->error = 'Invalid type and display combination';
+        }
+
+        // If there are any errors (either from the template path above or 
+        // elsewhere) output them
+        if( $this->error ) {
+            return $this->_render_error($this->error);
         }
 
         $this->_setup_template_data();
