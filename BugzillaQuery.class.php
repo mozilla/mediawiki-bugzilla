@@ -111,8 +111,9 @@ abstract class BugzillaBaseQuery {
         $this->options = json_decode($query_options_raw);
         if( !$query_options_raw || !$this->options ) {
             $this->error = 'Query options must be valid json';
+            return;
         }
-        // Object is kinda userless, make it an array
+        // Object is kinda useless, make it an array
         $this->options = get_object_vars($this->options);
     }
     
