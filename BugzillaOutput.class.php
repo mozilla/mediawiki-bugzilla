@@ -64,20 +64,53 @@ abstract class BugzillaOutput {
         
         return $this->cache;
     }
-    
-    abstract public function _setup_template_data();
+
+    abstract protected function _setup_template_data();
 
 }
 
-class BugzillaTable extends BugzillaOutput {
+class BugzillaBugListing extends BugzillaOutput {
+    
+    protected function _setup_template_data() {
 
-    public function _setup_template_data() {
-        if(count($this->query->data->bugs) > 0) {
-            $this->response->bugs = $this->query->data->bugs;
-        } else {
-            $this->response->bugs = array();
+        global $wgBugzillaDefaultFields;
+
+        $this->response->bugs   = array();
+        $this->response->fields = array();
+
+        // Set the bug data for the templates
+        if(count($this->query->data['bugs']) > 0) {
+            $this->response->bugs = $this->query->data['bugs'];
+        }
+
+        // Set the field data for the templates
+        if( isset($this->query->options['include_fields']) &&
+            !empty($this->query->options['include_fields']) ) {
+            // User specified some fields
+            $tmp = @explode(',', $this->query->options['include_fields']);
+            foreach( $tmp as $tmp_field ) {
+                $field = trim($tmp_field);
+                // Catch if the user specified the same field multiple times
+                if( !empty($field) && 
+                    !in_array($field, $this->response->fields) ) {
+                    array_push($this->response->fields, $field);
+                }
+            }
+        }else {
+            // If the user didn't specify any fields in the query config use
+            // default fields
+            $this->response->fields = $wgBugzillaDefaultFields;
         }
     }
+
+}
+
+class BugzillaList extends BugzillaBugListing {
+
+}
+
+class BugzillaTable extends BugzillaBugListing {
+
 }
 
 abstract class BugzillaGraph extends BugzillaOutput {
@@ -94,9 +127,9 @@ class BugzillaBarGraph extends BugzillaGraph {
     {
         global $wgBugzillaChartStorage, $wgBugzillaFontStorage;
         $pData = new pData();
-        $pData->addPoints($this->query->data->data, 'Counts');
+        $pData->addPoints($this->query->data['data'], 'Counts');
         $pData->setAxisName(0, 'Bugs');
-        $pData->addPoints($this->query->data->x_labels, "Bugs");
+        $pData->addPoints($this->query->data['x_labels'], "Bugs");
         $pData->setSerieDescription("Bugs", "Bugs");
         $pData->setAbscissa("Bugs");
 

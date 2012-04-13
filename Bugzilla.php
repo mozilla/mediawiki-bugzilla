@@ -74,31 +74,42 @@ function BugzillaCreateCache( $updater ) {
 function BugzillaIncludeHTML( &$out, &$sk ) {
 
     global $wgScriptPath;
+    global $wgBugzillaJqueryTable;
 
-    // Use remote jquery
-    $out->addScript('<script type="text/javascript" src="$wgScriptPath/extensions/Bugzilla/web/jquery/1.6.2/jquery.min.js"></script>');
+    if( $wgBugzillaJqueryTable ) {
+        // Use local jquery
+        $out->addScript("<script type='text/javascript' src='$wgScriptPath/extensions/Bugzilla/web/jquery/1.6.2/jquery.min.js'></script>");
 
-    // Use remote jquery ui
-    $out->addScript('<script type="text/javascript" src="$wgScriptPath/extensions/Bugzilla/web/jqueryui/1.8.14/jquery-ui.min.js"></script>');
+        // Use local jquery ui
+        $out->addScript("<script type='text/javascript' src='$wgScriptPath/extensions/Bugzilla/web/jqueryui/1.8.14/jquery-ui.min.js'></script>");
 
-    // Add a local script file for the datatable
-    $out->addScriptFile("$wgScriptPath/extensions/Bugzilla/web/js/jquery.dataTables.js" );
+        // Add a local script file for the datatable
+        $out->addScriptFile("$wgScriptPath/extensions/Bugzilla/web/js/jquery.dataTables.js" );
 
-    // Add a remote jquery css file
-    $out->addStyle("$wgScriptPath/extensions/Bugzilla/web/jqueryui/1.8.14/themes/base/jquery-ui.css");
+        // Add a local jquery css file
+        $out->addStyle("$wgScriptPath/extensions/Bugzilla/web/jqueryui/1.8.14/themes/base/jquery-ui.css");
 
-    // Add a remote jquery UI theme css file
-    $out->addStyle("$wgScriptPath/extensions/Bugzilla/web/jqueryui/1.8.14/themes/smoothness/jquery-ui.css");
+        // Add a local jquery UI theme css file
+        $out->addStyle("$wgScriptPath/extensions/Bugzilla/web/jqueryui/1.8.14/themes/smoothness/jquery-ui.css");
 
-    // Add local datatable styles
-    $out->addStyle("$wgScriptPath/extensions/Bugzilla/web/css/demo_page.css");
-    $out->addStyle("$wgScriptPath/extensions/Bugzilla/web/css/demo_table.css");
+        // Add local datatable styles
+        $out->addStyle("$wgScriptPath/extensions/Bugzilla/web/css/demo_page.css");
+        $out->addStyle("$wgScriptPath/extensions/Bugzilla/web/css/demo_table.css");
 
-    // Add the script to do table magic
-    $out->addInlineScript('$(document).ready(function() { 
-                    $(".bugzilla").dataTable({
-                                    "bJQueryUI": true
-                     })});');
+        // Add the script to do table magic
+        $out->addInlineScript('$(document).ready(function() { 
+                        $("table.bugzilla").dataTable({
+                                        "bJQueryUI": true
+                         })});');
+    }
+
+    // Add local bugzilla extension styles
+    $out->addStyle("$wgScriptPath/extensions/Bugzilla/web/css/bugzilla.css");
+
+    // Let the user optionally override bugzilla extension styles
+    if( file_exists("$wgScriptPath/extensions/Bugzilla/web/css/custom.css") ) {
+        $out->addStyle("$wgScriptPath/extensions/Bugzilla/web/css/custom.css");
+    }
 
     // Let the other hooks keep processing
     return TRUE;
@@ -123,6 +134,12 @@ function BugzillaRender($input, array $args, Parser $parser ) {
     // TODO: Not sure if we need this
     $parser->disableCache();
 
+    // TODO: Figure out to have the parser not do anything to our output
+    // mediawiki docs are wrong :-(
+    // error_log(print_r($parser->mStripState, true));
+    // $parser->mStripState->addItem( 'nowiki', 'NOWIKI', true);
+    // 'noparse' => true, 'isHTML' => true, 'markerType' => 'nowiki' );
+
     // Create a new bugzilla object
     $bz = Bugzilla::create($args, $input, $parser->getTitle());
 
@@ -135,16 +152,22 @@ function BugzillaRender($input, array $args, Parser $parser ) {
 // Default configuration
 // -----------------------------------------------------------------------------
 
-$wgBugzillaRESTURL     = 'https://api-dev.bugzilla.mozilla.org/latest';
-$wgBugzillaURL         = 'https://bugzilla.mozilla.org';
-$wgBugzillaTagName     = 'bugzilla';
-$wgBugzillaMethod      = 'REST'; // XML-RPC and JSON-RPC may be supported later
-$wgBugzillaUseCache    = TRUE;
-$wgBugzillaCacheMins   = 5;
+$wgBugzillaRESTURL       = 'https://api-dev.bugzilla.mozilla.org/latest';
+$wgBugzillaURL           = 'https://bugzilla.mozilla.org';
+$wgBugzillaTagName       = 'bugzilla';
+$wgBugzillaMethod        = 'REST'; // XML-RPC and JSON-RPC aren't supported yet
+$wgBugzillaDefaultFields = array(
+    'id',
+    'summary',
+    'priority',
+    'status',
+);
 $wgBugzillaJqueryTable = FALSE;
 
 // Cache settings
-$wgCacheObject = 'BugzillaCacheDummy';
+$wgBugzillaUseCache    = TRUE;
+$wgCacheObject         = 'BugzillaCacheDummy';
+$wgBugzillaCacheMins   = 10;
 
 $wgBugzillaChartStorage = realpath($cwd . '/charts');
 $wgBugzillaFontStorage = $cwd . '/pchart/fonts';

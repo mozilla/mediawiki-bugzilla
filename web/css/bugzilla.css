@@ -1,5 +1,32 @@
-/*
-table.bugzilla {
+
+/* Jquery table */
+table.jquery.bugzilla {
     width: 100%;
 }
-*/
+
+/* Table view styles */
+
+tr.bugzilla-status-NEW {
+    background-color: #ffeeee;
+}
+
+tr.bugzilla-status-ASSIGNED {
+    background-color: #eeeeff;
+}
+
+tr.bugzilla-status-REOPENED {
+    background-color: #ffffee;
+}
+
+tr.bugzilla-status-RESOLVED {
+    background-color: #eeffee;
+}
+
+tr.bugzilla-status-VERIFIED {
+    background-color: #ccffcc;
+
+/* General styles */
+.bugzilla-status-RESOLVED .bugzilla-data-id,
+.bugzilla-status-VERIFIED .bugzilla-data-id {
+    text-decoration: line-through;
+} 
