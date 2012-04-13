@@ -74,12 +74,14 @@ function BugzillaCreateCache( $updater ) {
 function BugzillaIncludeHTML( &$out, &$sk ) {
 
     global $wgScriptPath;
+    global $wgBugzillaJqueryTable;
 
-    // Use local jquery
-    $out->addScriptFile("$wgScriptPath/extensions/Bugzilla/web/jquery/1.6.2/jquery.min.js");
+    if( $wgBugzillaJqueryTable ) {
+        // Use local jquery
+        $out->addScript("<script type='text/javascript' src='$wgScriptPath/extensions/Bugzilla/web/jquery/1.6.2/jquery.min.js'></script>");
 
-    // Use local jquery ui
-    $out->addScriptFile("$wgScriptPath/extensions/Bugzilla/web/jqueryui/1.8.14/jquery-ui.min.js");
+        // Use local jquery ui
+        $out->addScript("<script type='text/javascript' src='$wgScriptPath/extensions/Bugzilla/web/jqueryui/1.8.14/jquery-ui.min.js'></script>");
 
     // Add a local script file for the datatable
     $out->addScriptFile("$wgScriptPath/extensions/Bugzilla/web/js/jquery.dataTables.js");
@@ -96,9 +98,18 @@ function BugzillaIncludeHTML( &$out, &$sk ) {
 
     // Add the script to do table magic
     $out->addInlineScript('$(document).ready(function() { 
-                    $(".bugzilla").dataTable({
+                        $("table.bugzilla").dataTable({
                                     "bJQueryUI": true
                      })});');
+    }
+
+    // Add local bugzilla extension styles
+    $out->addStyle("$wgScriptPath/extensions/Bugzilla/web/css/bugzilla.css");
+
+    // Let the user optionally override bugzilla extension styles
+    if( file_exists("$wgScriptPath/extensions/Bugzilla/web/css/custom.css") ) {
+        $out->addStyle("$wgScriptPath/extensions/Bugzilla/web/css/custom.css");
+    }
 
     // Let the other hooks keep processing
     return TRUE;
@@ -122,7 +133,13 @@ function BugzillaRender($input, array $args, Parser $parser, $frame ) {
     // We don't want the page to be cached
     // TODO: Not sure if we need this
     $parser->disableCache();
-    $input = $parser->recursiveTagParse($input, $frame);
+
+    // TODO: Figure out to have the parser not do anything to our output
+    // mediawiki docs are wrong :-(
+    // error_log(print_r($parser->mStripState, true));
+    // $parser->mStripState->addItem( 'nowiki', 'NOWIKI', true);
+    // 'noparse' => true, 'isHTML' => true, 'markerType' => 'nowiki' );
+
     // Create a new bugzilla object
     $bz = Bugzilla::create($args, $input, $parser->getTitle());
 
@@ -138,13 +155,19 @@ function BugzillaRender($input, array $args, Parser $parser, $frame ) {
 $wgBugzillaRESTURL     = 'https://api-dev.bugzilla.mozilla.org/latest';
 $wgBugzillaURL         = 'https://bugzilla.mozilla.org';
 $wgBugzillaTagName     = 'bugzilla';
-$wgBugzillaMethod      = 'REST'; // XML-RPC and JSON-RPC may be supported later
-$wgBugzillaUseCache    = TRUE;
-$wgBugzillaCacheMins   = 5;
+$wgBugzillaMethod        = 'REST'; // XML-RPC and JSON-RPC aren't supported yet
+$wgBugzillaDefaultFields = array(
+    'id',
+    'summary',
+    'priority',
+    'status',
+);
 $wgBugzillaJqueryTable = FALSE;
 
 // Cache settings
-$wgCacheObject = 'BugzillaCacheMysql';
+$wgBugzillaUseCache    = TRUE;
+$wgCacheObject         = 'BugzillaCacheDummy';
+$wgBugzillaCacheMins   = 10;
 
 $wgBugzillaChartStorage = realpath($cwd . '/charts');
 $wgBugzillaFontStorage = $cwd . '/pchart/fonts';
