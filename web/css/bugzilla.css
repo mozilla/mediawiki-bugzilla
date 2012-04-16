@@ -1,7 +1,17 @@
 
-/* Jquery table */
+/* Jquery table-specific styles */
 table.jquery.bugzilla {
     width: 100%;
+}
+
+/* Make the current sorted column appear a bit darker */
+/* TODO: This doesn't look that great */
+table.jquery tr.odd td.sorting_1 {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+table.jquery tr.even td.sorting_1 {
+    background-color: rgba(0, 0, 0, 0.05);
 }
 
 /* Table view styles */
