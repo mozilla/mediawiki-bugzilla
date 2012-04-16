@@ -140,6 +140,8 @@ function BugzillaRender($input, array $args, Parser $parser ) {
     // $parser->mStripState->addItem( 'nowiki', 'NOWIKI', true);
     // 'noparse' => true, 'isHTML' => true, 'markerType' => 'nowiki' );
 
+    $input = $parser->recursiveTagParse($input, $frame);
+
     // Create a new bugzilla object
     $bz = Bugzilla::create($args, $input, $parser->getTitle());
 
