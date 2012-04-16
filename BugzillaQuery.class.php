@@ -234,8 +234,11 @@ class BugzillaRESTQuery extends BugzillaBaseQuery {
             return;
         }
 
-        // Now that we have the data, process it
-        // $this->_process_data();
+        // Check for REST API errors
+        if( isset($this->data['error']) && !empty($this->data['error']) ) {
+            $this->error = "Bugzilla API returned an error: " .
+                           $this->data['message'];
+        }
     }
 }
 
