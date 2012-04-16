@@ -136,7 +136,7 @@ class BugzillaBarGraph extends BugzillaGraph {
         $pImage = new pImage(600,300, $pData);
         $pImage->setFontProperties(array('FontName' => $wgBugzillaFontStorage . '/verdana.ttf', 'FontSize' => 6));
         $pImage->setGraphArea(75, 30, 580, 280);
-        $pImage->drawScale(array("CycleBackground"=>TRUE,"DrawSubTicks"=>FALSE,"GridR"=>0,"GridG"=>0,"GridB"=>0,"GridAlpha"=>10, "Pos"=>SCALE_POS_TOPBOTTOM)); 
+        $pImage->drawScale(array("CycleBackground"=>TRUE,'Factors'=>array(1),"DrawSubTicks"=>FALSE,"GridR"=>0,"GridG"=>0,"GridB"=>0,"GridAlpha"=>10, "Pos"=>SCALE_POS_TOPBOTTOM)); 
 
         $pImage->drawBarChart();
         $pImage->render($wgBugzillaChartStorage . '/' . $chart_name . '.png');
