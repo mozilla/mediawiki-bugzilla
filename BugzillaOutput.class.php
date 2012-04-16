@@ -147,7 +147,7 @@ abstract class BugzillaGraph extends BugzillaOutput {
 
         $key = md5($this->query->id . $this->_get_size() . get_class($this));
         $cache = $this->_getCache();
-        if(0 && $result = $cache->get($key)) {
+        if($result = $cache->get($key)) {
             $image = $result['data'];
             $this->response->image = $wgBugzillaChartUrl . '/' . $image;
         } else {
