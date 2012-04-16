@@ -78,10 +78,10 @@ function BugzillaIncludeHTML( &$out, &$sk ) {
 
     if( $wgBugzillaJqueryTable ) {
         // Use local jquery
-        $out->addScript("<script type='text/javascript' src='$wgScriptPath/extensions/Bugzilla/web/jquery/1.6.2/jquery.min.js'></script>");
+        $out->addScriptFile("$wgScriptPath/extensions/Bugzilla/web/jquery/1.6.2/jquery.min.js");
 
         // Use local jquery ui
-        $out->addScript("<script type='text/javascript' src='$wgScriptPath/extensions/Bugzilla/web/jqueryui/1.8.14/jquery-ui.min.js'></script>");
+        $out->addScriptFile("$wgScriptPath/extensions/Bugzilla/web/jqueryui/1.8.14/jquery-ui.min.js");
 
     // Add a local script file for the datatable
     $out->addScriptFile("$wgScriptPath/extensions/Bugzilla/web/js/jquery.dataTables.js");
@@ -140,6 +140,8 @@ function BugzillaRender($input, array $args, Parser $parser, $frame ) {
     // $parser->mStripState->addItem( 'nowiki', 'NOWIKI', true);
     // 'noparse' => true, 'isHTML' => true, 'markerType' => 'nowiki' );
 
+    $input = $parser->recursiveTagParse($input, $frame);
+
     // Create a new bugzilla object
     $bz = Bugzilla::create($args, $input, $parser->getTitle());
 
@@ -162,7 +164,7 @@ $wgBugzillaDefaultFields = array(
     'priority',
     'status',
 );
-$wgBugzillaJqueryTable = FALSE;
+$wgBugzillaJqueryTable = TRUE;
 
 // Cache settings
 $wgBugzillaUseCache    = TRUE;
