@@ -4,13 +4,13 @@ MediaWiki extension for Bugzilla
 This is a MediaWiki extension that provides read-only access to the 
 [Bugzilla REST API](https://wiki.mozilla.org/Bugzilla:REST_API) 
 
-__Please note that there are still big outstanding bug!__
+__Please note that there are still big outstanding bugs!__
 
 Requirements
 ================================
 
 * Requires HTTP_Request2 from PEAR
-* Requires the SMARTY template library installed
+* For charting, requires gd
 
 Installation
 ================================
@@ -26,9 +26,9 @@ Please substitute your installation path if it is different*
 configuration variables. Current configuration variables and their defaults
 can be found at the end of `Bugzilla.php`
 5. Run the MediaWiki update script to create the cache database table 
-   `php /var/lib/mediawiki/maintenance/update.php`. *Note that you may need to
+   `php /var/lib/mediawiki/maintenance/update.php`. __Note that you may need to
    add `$wgDBadminuser` and `$wgDBadminpassword` to 
-   `/etc/mediawiki/LocalSettings.php` depending on your MediaWiki version
+   `/etc/mediawiki/LocalSettings.php` depending on your MediaWiki version__
 
 Usage
 ================================
@@ -39,7 +39,16 @@ You use this extension in this way:
         (JSON REST API query key/value pairs)
     </bugzilla>
 
-Examples:
+By default, it will output a colored table:
+
+![Example output](http://i.imgur.com/IM6xd.png"Example output")
+
+Note that the wiki tag name defaults to "bugzilla" but is 
+configurable by the administrator.
+
+Examples
+================================
+
 All P1 bugs in the Bugzilla product:
 
     <bugzilla>
@@ -87,21 +96,63 @@ Some commonly used query parameters are:
 For more details on how to query in various ways, see the documentation for
 the [Bugzilla REST API](https://wiki.mozilla.org/Bugzilla:REST_API)
 
-Note that the tag name defaults to "bugzilla" but is configurable.
 
-There is also __exploratory__ support for charting:
+Configurable fields/columns
+================================
+
+Specify fields in the "include_fields" setting of BZ REST API options as you 
+normally would. Mediawiki-bugzilla will then a) only fetch those fields 
+and b) display those columns.
+
+    <bugzilla>
+    {
+        "whiteboard": "[mediawiki-bugzilla]",
+        "include_fields": "id, summary, whiteboard, status, resolution"
+    }
+    </bugzilla>
+
+![Screenshot of the above](http://i.imgur.com/p3u7r.png "Screenshot of the above")
+
+
+Charting
+================================
+
+There is also _some_ support for charting:
 
     <bugzilla type="count" display="bar">
         {
-            "product":      "Bugzilla",
-            "priority":     "P1",
-            "x_axis_field": "severity"
+            "whiteboard": "[snappy:p1]",
+            "x_axis_field": "status"
         }
     </bugzilla>
 
 Screenshot of the above:
 
-![Screenshot of the above](http://i.imgur.com/1H868.png "Screenshot of the above")
+![Screenshot of the above](http://i.imgur.com/tDUZ1.png "Screenshot of the above")
+
+    <bugzilla type="count" display="pie">
+    {
+        "whiteboard": "[mediawiki-bugzilla]",
+        "x_axis_field": "status"
+    }
+    </bugzilla>
+    <bugzilla type="count" display="pie" size="medium">
+    {
+        "whiteboard": "[mediawiki-bugzilla]",
+        "x_axis_field": "status"
+    }
+    </bugzilla>
+    <bugzilla type="count" display="pie" size="small">
+    {
+        "whiteboard": "[mediawiki-bugzilla]",
+        "x_axis_field": "status"
+    }
+    </bugzilla>
+
+Screenshot of the above:
+
+![Screenshot of the above](http://i.imgur.com/mobHA.png "Screenshot of the above")
+
 
 Limitations
 ================================
@@ -112,7 +163,8 @@ Limitations
 
 Known Issues
 ================================
-* There is currently no way to specify multiple values for a query parameter
+* The __size__ attribute only works on pie charts
+* Rendering a page with an uncached query can take a bit
 * Large queries may exceed the allocated memory causing a blank page to be displayed. In this case you can recover by editing the page as follows:
 If your wiki page has the URL 
     https://wiki.mozilla.org/PagePath/PageTitle
@@ -121,9 +173,4 @@ The URL to edit your page is
 
 TODO
 ================================
-
-1. The JQuery UI table doesn't render correctly...make it better
-2. Support more types of queries than just "bug" (the default)
-3. Support more types of wiki display than just a bug table
-4. Caching and cache invalidation for queries
-5. Support charting as a 1st class citizen
+* Add more/smarter field display templates
