@@ -21,14 +21,15 @@ class BugzillaQuery {
 abstract class BugzillaBaseQuery {
 
     public function __construct($type, $options, $title) {
-        $this->type        = $type;
-        $this->title       = $title;
-        $this->url         = FALSE;
-        $this->id          = FALSE;
-        $this->fetched_at  = FALSE;
-        $this->error       = FALSE;
-        $this->data        = array();
-        $this->cache       = FALSE;
+        $this->type             = $type;
+        $this->title            = $title;
+        $this->url              = FALSE;
+        $this->id               = FALSE;
+        $this->fetched_at       = FALSE;
+        $this->error            = FALSE;
+        $this->data             = array();
+        $this->synthetic_fields = array();
+        $this->cache            = FALSE;
         $this->_set_options($options);
     }
 
@@ -59,9 +60,42 @@ abstract class BugzillaBaseQuery {
 
         // Sort it so the keys are always in the same order
         ksort($this->options);
+
+        // Treat include_fields special because we don't want to query multiple
+        // times if the same fields were requested in a different order
+        $saved_include_fields = array();
+        if( isset($this->options['include_fields']) &&
+            !empty($this->options['include_fields']) ) {
+
+            $saved_include_fields = $this->options['include_fields'];
+
+            // This is important. If a user asks for a subset of the default
+            // fields and another user has the same query w/ a subset,
+            // it is silly to cache the queries separately. We know the 
+            // defaults will always be pulled, so anything asking for
+            // any combination of the defaults (or any combined subset) are
+            // esentially the same
+            $include_fields = $this->synthetic_fields;
+
+            $tmp = @explode(',', $this->options['include_fields']);
+            foreach( $tmp as $tmp_field ) {
+                $field = trim($tmp_field);
+                // Catch if the user specified the same field multiple times
+                if( !empty($field) && !in_array($field, $include_fields) ) {
+                    array_push($include_fields, $field);
+                }
+            }
+            sort($include_fields);
+            $this->options['include_fields'] = @implode(',', $include_fields);
+        }
         
         // Get a string representation of the array
         $id_string = serialize($this->options);
+
+        // Restore the include_fields to what the user wanted
+        if( $saved_include_fields ) {
+            $this->options['include_fields'] = $saved_include_fields;
+        }
 
         // Hash it
         $this->id = sha1($id_string);
@@ -108,12 +142,11 @@ abstract class BugzillaBaseQuery {
 
     protected function _set_options($query_options_raw) {
         // Make sure query options are valid JSON
-        $this->options = json_decode($query_options_raw);
+        $this->options = json_decode($query_options_raw, TRUE);
         if( !$query_options_raw || !$this->options ) {
             $this->error = 'Query options must be valid json';
+            return;
         }
-        // Object is kinda userless, make it an array
-        $this->options = get_object_vars($this->options);
     }
     
     abstract public function _fetch_by_options();
@@ -130,6 +163,7 @@ class BugzillaRESTQuery extends BugzillaBaseQuery {
 
     function __construct($type, $options, $title='') {
         global $wgBugzillaRESTURL;
+        global $wgBugzillaDefaultFields;
 
         parent::__construct($type, $options, $title);
 
@@ -137,14 +171,17 @@ class BugzillaRESTQuery extends BugzillaBaseQuery {
         switch( $type ) {
 
             // Whitelist
-            case 'bug':
             case 'count':
                 $this->url = $wgBugzillaRESTURL . '/' . urlencode($type);
+                // Note there are no synthetic fields for count
                 break;
 
             // Default to a bug query
+            case 'bug':
             default:
                 $this->url = $wgBugzillaRESTURL . '/bug';
+                // Even if the user didn't specify, we need these
+                $this->synthetic_fields = $wgBugzillaDefaultFields;
         }
 
         $this->fetch();
@@ -164,15 +201,28 @@ class BugzillaRESTQuery extends BugzillaBaseQuery {
         $request->setHeader('Accept', 'application/json');
         $request->setHeader('Content-Type', 'application/json');
 
-        // Add in the requested query options
+        // Save the real options
+        $saved_options = $this->options;
+
+        // Add any synthetic fields to the options
+        if( !empty($this->synthetic_fields) ) {
+            $this->options['include_fields'] = 
+                @array_merge((array)$this->options['include_fields'],
+                             $this->synthetic_fields);
+        }
+
+        // Add the requested query options to the request
         $url = $request->getUrl();
         $url->setQueryVariables($this->options);
+
+        // Retore the real options, removing anything we synthesized
+        $this->options = $saved_options;
 
         // This is basically straight from the HTTP/Request2 docs
         try {
             $response = $request->send();
             if (200 == $response->getStatus()) {
-                $this->data = json_decode($response->getBody());
+                $this->data = json_decode($response->getBody(), TRUE);
             } else {
                 $this->error = 'Server returned unexpected HTTP status: ' .
                                $response->getStatus() . ' ' .
@@ -184,8 +234,11 @@ class BugzillaRESTQuery extends BugzillaBaseQuery {
             return;
         }
 
-        // Now that we have the data, process it
-        // $this->_process_data();
+        // Check for REST API errors
+        if( isset($this->data['error']) && !empty($this->data['error']) ) {
+            $this->error = "Bugzilla API returned an error: " .
+                           $this->data['message'];
+        }
     }
 }
 
