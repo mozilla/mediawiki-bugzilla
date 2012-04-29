@@ -28,7 +28,6 @@ abstract class BugzillaOutput {
     }
 
     public function render() {
-
         // Get our template path
         $this->template = dirname(__FILE__) . '/templates/' . 
                           $this->config['type'] . '/' . 
