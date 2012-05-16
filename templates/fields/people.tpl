@@ -8,13 +8,13 @@
 
         if( isset($data['real_name']) && !empty($data['real_name']) ) {
             $rn  = '<span class="bugzilla-field-' . $field .'-real_name">';
-            $rn .= htmlspecialchars($bug[$field]['real_name']);
+            $rn .= htmlspecialchars($data['real_name']);
             $rn .= '</span>';
         }
 
         if( isset($data['name']) && !empty($data['name']) ) {
             $n  = '<span class="bugzilla-field-' . $field .'-name">';
-            $n .= htmlspecialchars($bug[$field]['name']);
+            $n .= htmlspecialchars($data['name']);
             $n .= '</span>';
         }
 
