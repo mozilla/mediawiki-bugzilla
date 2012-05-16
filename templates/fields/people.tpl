@@ -18,7 +18,13 @@
             $n .= '</span>';
         }
 
-        $out = ( empty($n) ) ? $rn : "$rn ($n)";
+        if( empty($rn) ) {
+            $out = $n;
+        }elseif( empty($n) ) {
+            $out = $rn;
+        }else {
+            $out = "$rn ($n)";
+        }
 
         // Special case for "nobody"
         if( isset($data['name']) && (empty($data['name']) || $data['name'] == 'nobody') ) {
