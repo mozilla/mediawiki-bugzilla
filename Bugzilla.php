@@ -127,7 +127,7 @@ function BugzillaParserInit( Parser &$parser ) {
 }
 
 // Function to be called when our tag is found by the parser
-function BugzillaRender($input, array $args, Parser $parser, $frame ) {
+function BugzillaRender($input, array $args, Parser $parser, $frame=null ) {
     global $wgBugzillaRESTURL;
 
     // We don't want the page to be cached
