@@ -1,5 +1,9 @@
 <?php
     echo "<span class='bugzilla-field-$field'>";
-    echo     htmlspecialchars($bug[$field]);
+    if( is_array($bug[$field]) ) {
+        echo htmlspecialchars(implode(', ', $bug[$field]));
+    }else{
+        echo htmlspecialchars($bug[$field]);
+    }
     echo "</span>";
 ?>
