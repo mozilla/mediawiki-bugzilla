@@ -1,5 +1,47 @@
-/*
-table.bugzilla {
+
+/* Jquery table-specific styles */
+table.jquery.bugzilla {
     width: 100%;
 }
-*/
+
+/* The ID column should always be small */
+table.jquery.bugzilla td.bugzilla-data-id {
+    width: 1px;
+}
+
+/* Make the current sorted column appear a bit darker */
+/* TODO: This doesn't look that great */
+table.jquery.bugzilla tr.odd td.sorting_1 {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+table.jquery tr.even td.sorting_1 {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Table view styles */
+
+tr.bugzilla-status-NEW {
+    background-color: #ffeeee;
+}
+
+tr.bugzilla-status-ASSIGNED {
+    background-color: #eeeeff;
+}
+
+tr.bugzilla-status-REOPENED {
+    background-color: #ffffee;
+}
+
+tr.bugzilla-status-RESOLVED {
+    background-color: #eeffee;
+}
+
+tr.bugzilla-status-VERIFIED {
+    background-color: #ccffcc;
+
+/* General styles */
+.bugzilla-status-RESOLVED .bugzilla-data-id,
+.bugzilla-status-VERIFIED .bugzilla-data-id {
+    text-decoration: line-through;
+} 
