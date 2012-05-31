@@ -1,8 +1,19 @@
 <?php
 
-// -----------------------------------------------------------------------------
-// Extension credits / metadata
-// -----------------------------------------------------------------------------
+/**
+ * This is the configuration file for mediawiki-bugzilla. It contains important
+ * settings that should be reviewed and customized for your environment. Please
+ * see the instructions on each line for details about what should be 
+ * customized and how to properly install the application.
+ *
+ * For maximum commpatibility with Mediawiki, settings modifications should be
+ * made in the mediawiki/LocalSettings.php file. See the README for
+ * instructions.
+ */
+
+/**
+ * Application metadata and credits. Should not be changed.
+ */
 
 $wgExtensionCredits['other'][] = array(
     'name'        => 'Bugzilla',
@@ -13,11 +24,11 @@ $wgExtensionCredits['other'][] = array(
 );
 
 
-// -----------------------------------------------------------------------------
-// General setup
-// -----------------------------------------------------------------------------
+/**
+ * Classes to be autoloaded by mediawiki. Should you add any cache options, you
+ * should include them in this list.
+ */
 
-// Register the classes to autoload
 $cwd = dirname(__FILE__); // We don't need to do this more than once!
 
 $wgAutoloadClasses['Bugzilla']       = $cwd . '/Bugzilla.class.php';
@@ -27,25 +38,16 @@ $wgAutoloadClasses['BugzillaCacheI'] = $cwd . '/cache/BugzillaCacheI.class.php';
 $wgAutoloadClasses['BugzillaCacheMysql'] = $cwd . '/cache/BugzillaCacheMysql.class.php';
 $wgAutoloadClasses['BugzillaCacheDummy'] = $cwd . '/cache/BugzillaCacheDummy.class.php';
 
-// -----------------------------------------------------------------------------
-// Register our background job
-// -----------------------------------------------------------------------------
 
-$wgJobClasses['queryBugzillaUpdate']  = 'BugzillaUpdateJob';
-$wgJobClasses['queryBugzillaInsert']  = 'BugzillaInsertJob';
-
-
-// -----------------------------------------------------------------------------
-// Register for MediaWiki hooks
-// -----------------------------------------------------------------------------
+/**
+ * These hooks are used by mediawiki to properly display the plugin information
+ * and properly interpret the tags used.
+ */
 
 $wgHooks['LoadExtensionSchemaUpdates'][] = 'BugzillaCreateCache';
 $wgHooks['BeforePageDisplay'][]          = 'BugzillaIncludeHTML';
 $wgHooks['ParserFirstCallInit'][]        = 'BugzillaParserInit';
 
-// -----------------------------------------------------------------------------
-// Hook work functions
-// -----------------------------------------------------------------------------
 
 // Schema updates for the database cache
 function BugzillaCreateCache( $updater ) {
@@ -149,28 +151,32 @@ function BugzillaRender($input, array $args, Parser $parser, $frame=null ) {
     return $bz->render();
 }
 
+/**
+ * This configuration is the default configuration for mediawiki-bugzilla.
+ * Please feel free to customize it for your environment. Be sure to make
+ * changes in the mediawiki/LocalSettings.php file, to ensure upgrade
+ * compatibility.
+ */
 
-// -----------------------------------------------------------------------------
-// Default configuration
-// -----------------------------------------------------------------------------
+$wgBugzillaRESTURL     = 'https://api-dev.bugzilla.mozilla.org/latest'; // The URL for your Bugzilla API installation
+$wgBugzillaURL         = 'https://bugzilla.mozilla.org'; // The URL for your Bugzilla installation 
+$wgBugzillaTagName     = 'bugzilla'; // The tag name for your Bugzilla installation (default: 'bugzilla')
+$wgBugzillaMethod      = 'REST'; // XML-RPC and JSON-RPC may be supported later
+$wgBugzillaUseCache    = TRUE; // Use the built-in cache (default: TRUE)
+$wgBugzillaCacheMins   = 5; // Minutes to cache results (default: 5)
+$wgBugzillaJqueryTable = TRUE; // Use a jQuery table for display (default: true)
 
-$wgBugzillaRESTURL     = 'https://api-dev.bugzilla.mozilla.org/latest';
-$wgBugzillaURL         = 'https://bugzilla.mozilla.org';
-$wgBugzillaTagName     = 'bugzilla';
-$wgBugzillaMethod        = 'REST'; // XML-RPC and JSON-RPC aren't supported yet
+// Define which cache backend to use for caching Bugzilla results.
+$wgCacheObject = 'BugzillaCacheMysql';
+
+$wgBugzillaChartStorage = realpath($cwd . '/charts'); // Location to store generated bug charts
+$wgBugzillaFontStorage = $cwd . '/pchart/fonts'; // Path to font directory for font data
+$wgBugzillaChartUrl = $wgScriptPath . '/extensions/Bugzilla/charts'; // The URL to use to display charts
+
+// The default fields to display
 $wgBugzillaDefaultFields = array(
     'id',
     'summary',
     'priority',
     'status',
 );
-$wgBugzillaJqueryTable = TRUE;
-
-// Cache settings
-$wgBugzillaUseCache    = TRUE;
-$wgCacheObject        = 'BugzillaCacheMysql';
-$wgBugzillaCacheMins  = 5;
-
-$wgBugzillaChartStorage = realpath($cwd . '/charts');
-$wgBugzillaFontStorage = $cwd . '/pchart/fonts';
-$wgBugzillaChartUrl = $wgScriptPath . '/extensions/Bugzilla/charts';
