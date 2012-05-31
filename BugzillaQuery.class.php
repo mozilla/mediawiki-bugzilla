@@ -133,9 +133,7 @@ abstract class BugzillaBaseQuery {
         }else {
             // Cache is good, use it
             
-            $this->id = $row['id'];
-            $this->fetched_at = wfTimestamp(TS_DB, $row['fetched_at']);
-            $this->data = unserialize($row['data']);
+            $this->data = unserialize($row);
             $this->cached = TRUE;
         }
     }

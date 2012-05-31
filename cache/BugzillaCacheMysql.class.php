@@ -54,7 +54,7 @@ class BugzillaCacheMysql implements BugzillaCacheI
             return;
         }
         
-        return $row;
+        return $row['data'];
     }
     
     public function expire($key)

@@ -37,6 +37,8 @@ $wgAutoloadClasses['BugzillaOutput'] = $cwd . '/BugzillaOutput.class.php';
 $wgAutoloadClasses['BugzillaCacheI'] = $cwd . '/cache/BugzillaCacheI.class.php';
 $wgAutoloadClasses['BugzillaCacheMysql'] = $cwd . '/cache/BugzillaCacheMysql.class.php';
 $wgAutoloadClasses['BugzillaCacheDummy'] = $cwd . '/cache/BugzillaCacheDummy.class.php';
+$wgAutoloadClasses['BugzillaCacheApc'] = $cwd . '/cache/BugzillaCacheApc.class.php';
+
 
 
 /**
