@@ -242,5 +242,85 @@ class BugzillaRESTQuery extends BugzillaBaseQuery {
     }
 }
 
+/**
+*/
+class BugzillaXMLRPCQuery extends BugzillaBaseQuery {
 
-?>
+    function __construct($type, $options, $title='') {
+
+        global $wgBugzillaURL;
+        global $wgBugzillaDefaultFields;
+
+        parent::__construct($type, $options, $title);
+
+        $this->url = $wgBugzillaURL . '/xmlrpc.cgi';
+
+        $this->fetch();
+    }
+
+    // Load data from the Bugzilla XMLRPC API
+    public function _fetch_by_options() {
+
+        $method = 'Bug.search';
+        $struct = '';
+        foreach ($this->options as $k => $v)
+            $struct .= sprintf('<member><name>%s</name><value><%s>%s</%s></value></member>' . "\n",
+                $k, 'string', $v, 'string');
+
+        $xml = <<<X
+<?xml version="1.0" encoding="utf-8"?>
+<methodCall>
+    <methodName>{$method}</methodName>
+    <params>
+        <param>
+            <struct>
+                {$struct}
+            </struct>
+        </param>
+    </params>
+</methodCall>
+X;
+
+        $request = new HTTP_Request2($this->url,
+                                     HTTP_Request2::METHOD_POST,
+                                     array('follow_redirects' => TRUE,
+                                           'ssl_verify_peer' => FALSE));
+
+        $request->setHeader('Accept', 'text/xml');
+        $request->setHeader('Content-Type', 'text/xml;charset=utf-8');
+        $request->setBody($xml);
+
+        try {
+            $response = $request->send();
+
+            if (200 == $response->getStatus()) {
+                $x = simplexml_load_string($response->getBody());
+                $this->data['bugs'] = array();
+                foreach ($x->params->param->value->struct->member->value->array->data->value as $b) {
+                    $bug = array();
+                    foreach ($b->struct->member as $m) {
+                        if ($m->name == 'internals')
+                            continue;
+
+                        $value = (array)$m->value;
+                        $bug[(string)$m->name] = (string)array_shift($value);
+                    }
+                    $this->data['bugs'][] = $bug;
+                }
+            } else {
+                $this->error = 'Server returned unexpected HTTP status: ' .
+                               $response->getStatus() . ' ' .
+                               $response->getReasonPhrase();
+                return;
+            }
+        } catch (HTTP_Request2_Exception $e) {
+            $this->error = $e->getMessage();
+            return;
+        }
+
+        if( isset($this->data['error']) && !empty($this->data['error']) ) {
+            $this->error = "Bugzilla API returned an error: " .
+                           $this->data['message'];
+        }
+    }
+}
