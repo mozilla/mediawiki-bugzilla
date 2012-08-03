@@ -37,6 +37,7 @@ $wgAutoloadClasses['BugzillaOutput'] = $cwd . '/BugzillaOutput.class.php';
 $wgAutoloadClasses['BugzillaCacheI'] = $cwd . '/cache/BugzillaCacheI.class.php';
 $wgAutoloadClasses['BugzillaCacheMysql'] = $cwd . '/cache/BugzillaCacheMysql.class.php';
 $wgAutoloadClasses['BugzillaCacheDummy'] = $cwd . '/cache/BugzillaCacheDummy.class.php';
+$wgAutoloadClasses['BugzillaCacheGeneric'] = $cwd . '/cache/BugzillaCacheGeneric.class.php';
 
 
 /**
@@ -50,20 +51,27 @@ $wgHooks['ParserFirstCallInit'][]        = 'BugzillaParserInit';
 
 
 // Schema updates for the database cache
-function BugzillaCreateCache( $updater ) {
-    if( $updater === null ) {
+function BugzillaCreateCache($updater) {
+
+    global $wgBugzillaCacheType;
+
+    $sqlFile = sprintf('%s/sql/cache_%s.sql',
+                       dirname(__FILE__),
+                       $wgBugzillaCacheType);
+
+    if ($updater === null) {
         // <= 1.16 support
         global $wgExtNewTables;
         global $wgExtModifiedFields;
         $wgExtNewTables[] = array(
             'bugzilla_cache',
-            dirname( __FILE__ ) . '/cache.sql'
+            $sqlFile,
         );
-    }else {
+    } else {
         // >= 1.17 support
         $updater->addExtensionUpdate( array( 'addTable',
                                              'bugzilla_cache',
-                                             dirname( __FILE__ ) . '/cache.sql',
+                                             $sqlFile,
                                              TRUE )
         );
     }
@@ -162,12 +170,13 @@ $wgBugzillaRESTURL     = 'https://api-dev.bugzilla.mozilla.org/latest'; // The U
 $wgBugzillaURL         = 'https://bugzilla.mozilla.org'; // The URL for your Bugzilla installation 
 $wgBugzillaTagName     = 'bugzilla'; // The tag name for your Bugzilla installation (default: 'bugzilla')
 $wgBugzillaMethod      = 'REST'; // XML-RPC and JSON-RPC may be supported later
+
 $wgBugzillaUseCache    = TRUE; // Use the built-in cache (default: TRUE)
 $wgBugzillaCacheMins   = 5; // Minutes to cache results (default: 5)
-$wgBugzillaJqueryTable = TRUE; // Use a jQuery table for display (default: true)
+$wgBugzillaCacheType   = 'sqlite'; // SQL backend used for the cache: mysql, postgres, sqlite
+$wgCacheObject         = 'BugzillaCacheGeneric'; // Define which cache backend to use for caching Bugzilla results.
 
-// Define which cache backend to use for caching Bugzilla results.
-$wgCacheObject = 'BugzillaCacheMysql';
+$wgBugzillaJqueryTable = TRUE; // Use a jQuery table for display (default: true)
 
 $wgBugzillaChartStorage = realpath($cwd . '/charts'); // Location to store generated bug charts
 $wgBugzillaFontStorage = $cwd . '/pchart/fonts'; // Path to font directory for font data
