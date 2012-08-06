@@ -21,5 +21,9 @@ class BugzillaCacheDummy implements BugzillaCacheI
     {
         return true;
     }
-    
+
+    public static function setup($updater)
+    {
+        return;
+    }
 }
