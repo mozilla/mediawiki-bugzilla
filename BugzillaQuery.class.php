@@ -32,7 +32,7 @@ abstract class BugzillaBaseQuery {
         $this->cache            = FALSE;
         $this->_set_options($options);
     }
-
+    
     protected function _getCache()
     {
         global $wgCacheObject;

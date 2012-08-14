@@ -2,43 +2,49 @@
 
 class BugzillaCacheMysql implements BugzillaCacheI
 {
-    protected $_slave;
-    protected $_master;
-    
-    public function __construct()
-    {
-        // TO-DO: This methodology creates some difficulties to unit testing.
-        $this->_slave = wfGetDB( DB_SLAVE );
-        $this->_master = wfGetDB( DB_MASTER );
-    }
-    
+        
+
     public function set($key, $value, $ttl = 300)
     {
-        //TO-DO: It's probably a bad thing to write straight SQL against an
-        //       abstraction layer. The abstraction layer doens't offer full
-        //       functionality, though, and this reduces the number of queries
-        //       for something as simple as caching. Also, the doQuery() method
-        //       is marked "private" but that is commented out; that may change
-        //       in a future release.
-        $key_c = $this->_master->strencode($key);
-        $value_c = $this->_master->strencode($value);
-        $date = wfTimestamp(TS_DB);
-        $now = time(); // Using time() because it's a PHP built-in.
-        $expires = $now+$ttl;
-        
-        $sql = 'REPLACE INTO bugzilla_cache
-                (`key`, `fetched_at`, `data`, `expires`) 
-                VALUES
-                ("%s", "%s", "%s", %d)';
-                
-        $sql = sprintf($sql, $key_c, $date, $value_c, $expires);
-        $res = $this->_master->doQuery($sql);
+        $master = $this->_getDatabase();
+        $key_c   = $master->strencode($key);
+        $value_c = $master->strencode($value);
+        $date    = wfTimestamp(TS_DB);
+        $now     = time(); // Using time() because it's a PHP built-in.
+        $expires = $now + $ttl;
+        if (null === $this->get($key)) {
+            $res = $master->insert(
+                'bugzilla_cache',
+                array(
+                    '`key`'        => $key_c,
+                    'fetched_at' => $date,
+                    'data'       => $value_c,
+                    'expires'    => $expires
+                ),
+                __METHOD__
+            );
+        } else {
+            $res = $this->update(
+                'bugzilla_cache',
+                array(
+                    'fetched_at' => $date
+                ),
+                'key = "' . $key_c . '"',
+                __METHOD__
+            );
+        }
+
         return $res;
+    }
+    
+    protected function _getDatabase($type = DB_MASTER) {
+        return wfGetDB($type);
     }
     
     public function get($key)
     {
-         $res = $this->_slave->select(
+         $slave = $this->_getDatabase(DB_SLAVE);
+         $res = $slave->select(
                         'bugzilla_cache',
                         array('id', 'fetched_at', 'data', 'expires'),
                         '`key` = "' . $key . '"',
@@ -59,7 +65,8 @@ class BugzillaCacheMysql implements BugzillaCacheI
     
     public function expire($key)
     {
-        return $this->_master->delete(
+        $master = $this->_getDatabase();
+        return $master->delete(
                 'bugzilla_cache',
                 array('`key`="' . $key .'"')
             );
