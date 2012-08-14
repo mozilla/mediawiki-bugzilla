@@ -32,7 +32,7 @@ abstract class BugzillaBaseQuery {
         $this->cache            = FALSE;
         $this->_set_options($options);
     }
-
+    
     protected function _getCache()
     {
         global $wgCacheObject;
@@ -119,7 +119,7 @@ abstract class BugzillaBaseQuery {
 
         // If the cache entry is older than this we need to invalidate it
         $expiry = strtotime("-$wgBugzillaCacheMins minutes");
-
+        
         if( !$row ) { 
             // No cache entry
 
@@ -132,7 +132,6 @@ abstract class BugzillaBaseQuery {
             return $this->data;
         }else {
             // Cache is good, use it
-            
             $this->data = unserialize($row);
             $this->cached = TRUE;
         }
