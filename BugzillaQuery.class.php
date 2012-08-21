@@ -4,7 +4,7 @@ require_once 'HTTP/Request2.php';
 
 // Factory class
 class BugzillaQuery {
-    public function create($type, $options, $title) {
+    public static function create($type, $options, $title) {
         global $wgBugzillaMethod;
 
         if( strtolower($wgBugzillaMethod) == 'xml-rpc' ) {
