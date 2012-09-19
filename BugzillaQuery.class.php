@@ -191,7 +191,11 @@ class BugzillaRESTQuery extends BugzillaBaseQuery {
     public function _fetch_by_options() {
 
         // Set up our HTTP request
-        $request = new HTTP_Request2($this->url,
+        $options_array = array();
+        
+        $options_array = array(Net_Url2::OPTION_USE_BRACKETS => false);
+        $net_url2 = new Net_Url2($this->url, $options_array);
+        $request = new HTTP_Request2($net_url2,
                                      HTTP_Request2::METHOD_GET,
                                      array('follow_redirects' => TRUE,
                                            // TODO: Not sure if I should do this
@@ -203,12 +207,24 @@ class BugzillaRESTQuery extends BugzillaBaseQuery {
 
         // Save the real options
         $saved_options = $this->options;
-
+        
+        if(!isset($this->options['include_fields'])) {
+            $this->options['include_fields'] = array();
+        }
+        
+        if(!is_array($this->options['include_fields'])) {
+            (array)$this->options['include_fields'];
+        }
+        
         // Add any synthetic fields to the options
         if( !empty($this->synthetic_fields) ) {
             $this->options['include_fields'] = 
                 @array_merge((array)$this->options['include_fields'],
                              $this->synthetic_fields);
+        }
+        
+        if(!empty($this->options['include_fields'])) {
+            $this->options['include_fields'] = implode(",", $this->options['include_fields']);
         }
 
         // Add the requested query options to the request
