@@ -9,6 +9,7 @@ class BugzillaCacheMysql implements BugzillaCacheI
         $master = $this->_getDatabase();
         $key_c   = $key;
         $value_c = $value;
+
         $date    = wfTimestamp(TS_DB);
         $now     = time(); // Using time() because it's a PHP built-in.
         $expires = $now + $ttl;
@@ -30,6 +31,7 @@ class BugzillaCacheMysql implements BugzillaCacheI
                     'fetched_at' => $date
                 ),
                 '`key` = "' . $key_c . '"',
+
                 __METHOD__
             );
         }
