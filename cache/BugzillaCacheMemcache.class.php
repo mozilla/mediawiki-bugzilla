@@ -31,5 +31,8 @@ class BugzillaCacheMemcache implements BugzillaCacheI
         $key = wfMemcKey($key);
         return $this->_memcache->delete($key);
     }
-    
+
+    public static function setup($updater) {
+        return;
+    }
 }

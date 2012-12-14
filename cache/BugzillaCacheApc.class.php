@@ -14,5 +14,8 @@ class BugzillaCacheApc implements BugzillaCacheI
     public function expire($key) {
         return apc_delete($key);
     }
-    
+
+    public static function setup($updater) {
+        return;
+    }
 }

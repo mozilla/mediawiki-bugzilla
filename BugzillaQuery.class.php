@@ -7,12 +7,10 @@ class BugzillaQuery {
     public static function create($type, $options, $title) {
         global $wgBugzillaMethod;
 
-        if( strtolower($wgBugzillaMethod) == 'xml-rpc' ) {
-            return new BugzillaXMLRPCQuery($type, $options, $title);
-        }elseif( strtolower($wgBugzillaMethod) == 'json-rpc' ) {
-            return new BugzillaJSONRPCQuery($type, $options, $title);
-        }else {
-            return new BugzillaRESTQuery($type, $options, $title);
+        switch ( strtolower( $wgBugzillaMethod ) ) {
+        case 'xml-rpc':  return new BugzillaXMLRPCQuery ($type, $options, $title); break;
+        case 'json-rpc': return new BugzillaJSONRPCQuery($type, $options, $title); break;
+        default:         return new BugzillaRESTQuery   ($type, $options, $title); break;
         }
     }
 }
@@ -25,7 +23,6 @@ abstract class BugzillaBaseQuery {
         $this->title            = $title;
         $this->url              = FALSE;
         $this->id               = FALSE;
-        $this->fetched_at       = FALSE;
         $this->error            = FALSE;
         $this->data             = array();
         $this->synthetic_fields = array();
@@ -35,11 +32,10 @@ abstract class BugzillaBaseQuery {
     
     protected function _getCache()
     {
-        global $wgCacheObject;
-        if(!$this->cache) {
-            $this->cache = new $wgCacheObject;
+        if (!$this->cache) {
+            $this->cache = Bugzilla::getCache();
         }
-        
+
         return $this->cache;
     }
 
@@ -113,27 +109,27 @@ abstract class BugzillaBaseQuery {
 
         // Don't do anything if we already had an error
         if( $this->error ) { return; }
-        
+
         $cache = $this->_getCache();
         $row = $cache->get($this->id());
 
         // If the cache entry is older than this we need to invalidate it
         $expiry = strtotime("-$wgBugzillaCacheMins minutes");
-        
+
         if( !$row ) { 
             // No cache entry
-
             $this->cached = FALSE;
             $params = array( 'query_obj' => serialize($this) );
 
             // Does the Bugzilla query in the background and updates the cache
             $this->_fetch_by_options();
             $this->_update_cache();
+
             return $this->data;
-        }else {
+        } else {
             // Cache is good, use it
-            $this->data = unserialize($row);
             $this->cached = TRUE;
+            $this->data = unserialize(base64_decode($row));
         }
     }
 
@@ -151,7 +147,7 @@ abstract class BugzillaBaseQuery {
     protected function _update_cache()
     {
         $cache = $this->_getCache();
-        $cache->set($this->id(), serialize($this->data));
+        $cache->set($this->id(), base64_encode(serialize($this->data)));
     }
 
 }
@@ -309,6 +305,8 @@ X;
             if (200 == $response->getStatus()) {
                 $x = simplexml_load_string($response->getBody());
                 $this->data['bugs'] = array();
+
+                // FIXME there must be a better way
                 foreach ($x->params->param->value->struct->member->value->array->data->value as $b) {
                     $bug = array();
                     foreach ($b->struct->member as $m) {
