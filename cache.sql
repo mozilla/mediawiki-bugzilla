@@ -7,4 +7,4 @@ CREATE TABLE IF NOT EXISTS `bugzilla_cache` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB, DEFAULT CHARSET=binary;
 
-CREATE UNIQUE INDEX `key_unique` ON `bugzilla_cache` (`key`);
+CREATE UNIQUE INDEX `uniq_bugzilla_cache_key` ON `bugzilla_cache` (`key`);
