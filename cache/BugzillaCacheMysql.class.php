@@ -55,6 +55,10 @@ class BugzillaCacheMysql implements BugzillaCacheI
                                'LIMIT' => 1)
             );
 
+		if( !$res ) {
+			$this->expire( $key );
+		}
+
         $row = $res->fetchRow();
 
         if(!$row || ($row['expires'] < time())) {
