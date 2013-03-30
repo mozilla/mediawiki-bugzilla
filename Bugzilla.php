@@ -171,7 +171,7 @@ $wgBugzillaCacheMins   = 5; // Minutes to cache results (default: 5)
 $wgBugzillaJqueryTable = TRUE; // Use a jQuery table for display (default: true)
 
 // Define which cache backend to use for caching Bugzilla results.
-$wgCacheObject = 'BugzillaCacheMysql';
+$wgBugzillaCacheObject = 'BugzillaCacheMysql';
 
 $wgBugzillaChartStorage = realpath($cwd . '/charts'); // Location to store generated bug charts
 $wgBugzillaFontStorage = $cwd . '/pchart/fonts'; // Path to font directory for font data
