@@ -39,6 +39,7 @@ tr.bugzilla-status-RESOLVED {
 
 tr.bugzilla-status-VERIFIED {
     background-color: #ccffcc;
+}
 
 /* General styles */
 .bugzilla-status-RESOLVED .bugzilla-data-id,

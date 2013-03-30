@@ -32,14 +32,14 @@ abstract class BugzillaBaseQuery {
         $this->cache            = FALSE;
         $this->_set_options($options);
     }
-    
+
     protected function _getCache()
     {
         global $wgCacheObject;
         if(!$this->cache) {
             $this->cache = new $wgCacheObject;
         }
-        
+
         return $this->cache;
     }
 
@@ -88,7 +88,7 @@ abstract class BugzillaBaseQuery {
             sort($include_fields);
             $this->options['include_fields'] = @implode(',', $include_fields);
         }
-        
+
         // Get a string representation of the array
         $id_string = serialize($this->options);
 
@@ -102,7 +102,7 @@ abstract class BugzillaBaseQuery {
 
         return $this->id;
     }
-        
+
     // Connect and fetch the data
     public function fetch() {
 
@@ -113,13 +113,13 @@ abstract class BugzillaBaseQuery {
 
         // Don't do anything if we already had an error
         if( $this->error ) { return; }
-        
+
         $cache = $this->_getCache();
         $row = $cache->get($this->id());
 
         // If the cache entry is older than this we need to invalidate it
         $expiry = strtotime("-$wgBugzillaCacheMins minutes");
-        
+
         if( !$row ) { 
             // No cache entry
 
@@ -133,21 +133,21 @@ abstract class BugzillaBaseQuery {
         }else {
             // Cache is good, use it
             $this->data = unserialize($row);
-            $this->cached = TRUE;
+            $this->cached = true;
         }
     }
 
     protected function _set_options($query_options_raw) {
         // Make sure query options are valid JSON
-        $this->options = json_decode($query_options_raw, TRUE);
+        $this->options = json_decode($query_options_raw, true);
         if( !$query_options_raw || !$this->options ) {
             $this->error = 'Query options must be valid json';
             return;
         }
     }
-    
+
     abstract public function _fetch_by_options();
-    
+
     protected function _update_cache()
     {
         $cache = $this->_getCache();
@@ -189,14 +189,17 @@ class BugzillaRESTQuery extends BugzillaBaseQuery {
 
         // Set up our HTTP request
         $options_array = array();
-        
+
         $options_array = array(Net_Url2::OPTION_USE_BRACKETS => false);
         $net_url2 = new Net_Url2($this->url, $options_array);
         $request = new HTTP_Request2($net_url2,
-                                     HTTP_Request2::METHOD_GET,
-                                     array('follow_redirects' => TRUE,
-                                           // TODO: Not sure if I should do this
-                                           'ssl_verify_peer' => FALSE));
+            HTTP_Request2::METHOD_GET,
+            array(
+                'follow_redirects' => true,
+                // TODO: Not sure if I should do this
+                'ssl_verify_peer' => false
+            )
+        );
 
         // The REST API requires these
         $request->setHeader('Accept', 'application/json');
@@ -204,22 +207,22 @@ class BugzillaRESTQuery extends BugzillaBaseQuery {
 
         // Save the real options
         $saved_options = $this->options;
-        
+
         if(!isset($this->options['include_fields'])) {
             $this->options['include_fields'] = array();
         }
-        
+
         if(!is_array($this->options['include_fields'])) {
             (array)$this->options['include_fields'];
         }
-        
+
         // Add any synthetic fields to the options
         if( !empty($this->synthetic_fields) ) {
             $this->options['include_fields'] = 
                 @array_merge((array)$this->options['include_fields'],
                              $this->synthetic_fields);
         }
-        
+
         if(!empty($this->options['include_fields'])) {
             $this->options['include_fields'] = implode(",", $this->options['include_fields']);
         }
@@ -295,9 +298,12 @@ class BugzillaXMLRPCQuery extends BugzillaBaseQuery {
 X;
 
         $request = new HTTP_Request2($this->url,
-                                     HTTP_Request2::METHOD_POST,
-                                     array('follow_redirects' => TRUE,
-                                           'ssl_verify_peer' => FALSE));
+            HTTP_Request2::METHOD_POST,
+            array(
+                'follow_redirects' => true,
+               'ssl_verify_peer' => false
+            )
+        );
 
         $request->setHeader('Accept', 'text/xml');
         $request->setHeader('Content-Type', 'text/xml;charset=utf-8');
@@ -312,8 +318,9 @@ X;
                 foreach ($x->params->param->value->struct->member->value->array->data->value as $b) {
                     $bug = array();
                     foreach ($b->struct->member as $m) {
-                        if ($m->name == 'internals')
+                        if ($m->name == 'internals') {
                             continue;
+                        }
 
                         $value = (array)$m->value;
                         $bug[(string)$m->name] = (string)array_shift($value);

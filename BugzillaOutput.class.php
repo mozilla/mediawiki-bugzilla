@@ -256,4 +256,3 @@ class BugzillaBarGraph extends BugzillaGraph {
 
 }
 
-?>
