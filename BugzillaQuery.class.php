@@ -35,9 +35,9 @@ abstract class BugzillaBaseQuery {
     
     protected function _getCache()
     {
-        global $wgCacheObject;
+        global $wgBugzillaCacheObject;
         if(!$this->cache) {
-            $this->cache = new $wgCacheObject;
+            $this->cache = new $wgBugzillaCacheObject;
         }
         
         return $this->cache;
