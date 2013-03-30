@@ -17,10 +17,9 @@
 
 $wgExtensionCredits['other'][] = array(
     'name'        => 'Bugzilla',
-    'author'      => 'Christian Legnitto', 
+    'author'      => 'Christian Legnitto',
     'url'         => 'https://github.com/LegNeato/mediawiki-bugzilla',
-    'description' => 'This extension allows read-only integration with '.
-                     'Bugzilla via the REST API',
+    'descriptionmsg' => 'bugzilla-desc',
 );
 
 
@@ -31,6 +30,8 @@ $wgExtensionCredits['other'][] = array(
 
 $cwd = dirname(__FILE__); // We don't need to do this more than once!
 
+$wgExtensionMessagesFiles['Bugzilla'] =  "$dir/Bugzilla.i18n.php";
+
 $wgAutoloadClasses['Bugzilla']       = $cwd . '/Bugzilla.class.php';
 $wgAutoloadClasses['BugzillaQuery']  = $cwd . '/BugzillaQuery.class.php';
 $wgAutoloadClasses['BugzillaOutput'] = $cwd . '/BugzillaOutput.class.php';
@@ -40,9 +41,6 @@ $wgAutoloadClasses['BugzillaCacheDummy'] = $cwd . '/cache/BugzillaCacheDummy.cla
 $wgAutoloadClasses['BugzillaCacheApc'] = $cwd . '/cache/BugzillaCacheApc.class.php';
 $wgAutoloadClasses['BugzillaCacheMemcache'] = $cwd . '/cache/BugzillaCacheMemcache.class.php';
 
-
-
-
 /**
  * These hooks are used by mediawiki to properly display the plugin information
  * and properly interpret the tags used.
@@ -51,7 +49,6 @@ $wgAutoloadClasses['BugzillaCacheMemcache'] = $cwd . '/cache/BugzillaCacheMemcac
 $wgHooks['LoadExtensionSchemaUpdates'][] = 'BugzillaCreateCache';
 $wgHooks['BeforePageDisplay'][]          = 'BugzillaIncludeHTML';
 $wgHooks['ParserFirstCallInit'][]        = 'BugzillaParserInit';
-
 
 // Schema updates for the database cache
 function BugzillaCreateCache( $updater ) {
@@ -65,10 +62,12 @@ function BugzillaCreateCache( $updater ) {
         );
     }else {
         // >= 1.17 support
-        $updater->addExtensionUpdate( array( 'addTable',
-                                             'bugzilla_cache',
-                                             dirname( __FILE__ ) . '/cache.sql',
-                                             TRUE )
+        $updater->addExtensionUpdate(
+            array( 'addTable',
+                'bugzilla_cache',
+                dirname( __FILE__ ) . '/cache.sql',
+                true
+            )
         );
     }
 
@@ -89,24 +88,25 @@ function BugzillaIncludeHTML( &$out, &$sk ) {
         // Use local jquery ui
         $out->addScriptFile("$wgScriptPath/extensions/Bugzilla/web/jqueryui/1.8.14/jquery-ui.min.js");
 
-    // Add a local script file for the datatable
-    $out->addScriptFile("$wgScriptPath/extensions/Bugzilla/web/js/jquery.dataTables.js");
+        // Add a local script file for the datatable
+        $out->addScriptFile("$wgScriptPath/extensions/Bugzilla/web/js/jquery.dataTables.js");
 
-    // Add a local jquery css file
-    $out->addStyle("$wgScriptPath/extensions/Bugzilla/web/jqueryui/1.8.14/themes/base/jquery-ui.css");
+        // Add a local jquery css file
+        $out->addStyle("$wgScriptPath/extensions/Bugzilla/web/jqueryui/1.8.14/themes/base/jquery-ui.css");
 
-    // Add a local jquery UI theme css file
-    $out->addStyle("$wgScriptPath/extensions/Bugzilla/web/jqueryui/1.8.14/themes/smoothness/jquery-ui.css");
+        // Add a local jquery UI theme css file
+        $out->addStyle("$wgScriptPath/extensions/Bugzilla/web/jqueryui/1.8.14/themes/smoothness/jquery-ui.css");
 
-    // Add local datatable styles
-    $out->addStyle("$wgScriptPath/extensions/Bugzilla/web/css/demo_page.css");
-    $out->addStyle("$wgScriptPath/extensions/Bugzilla/web/css/demo_table.css");
+        // Add local datatable styles
+        $out->addStyle("$wgScriptPath/extensions/Bugzilla/web/css/demo_page.css");
+        $out->addStyle("$wgScriptPath/extensions/Bugzilla/web/css/demo_table.css");
 
-    // Add the script to do table magic
-    $out->addInlineScript('$(document).ready(function() { 
-                        $("table.bugzilla").dataTable({
-                                    "bJQueryUI": true
-                     })});');
+        // Add the script to do table magic
+        $out->addInlineScript('$(document).ready(function() {
+            $("table.bugzilla").dataTable({
+            "bJQueryUI": true
+            })});'
+        );
     }
 
     // Add local bugzilla extension styles
@@ -166,9 +166,9 @@ $wgBugzillaRESTURL     = 'https://api-dev.bugzilla.mozilla.org/latest'; // The U
 $wgBugzillaURL         = 'https://bugzilla.mozilla.org'; // The URL for your Bugzilla installation 
 $wgBugzillaTagName     = 'bugzilla'; // The tag name for your Bugzilla installation (default: 'bugzilla')
 $wgBugzillaMethod      = 'REST'; // XML-RPC and JSON-RPC may be supported later
-$wgBugzillaUseCache    = TRUE; // Use the built-in cache (default: TRUE)
+$wgBugzillaUseCache    = true; // Use the built-in cache (default: TRUE)
 $wgBugzillaCacheMins   = 5; // Minutes to cache results (default: 5)
-$wgBugzillaJqueryTable = TRUE; // Use a jQuery table for display (default: true)
+$wgBugzillaJqueryTable = true; // Use a jQuery table for display (default: true)
 
 // Define which cache backend to use for caching Bugzilla results.
 $wgCacheObject = 'BugzillaCacheMysql';

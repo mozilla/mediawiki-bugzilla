@@ -2,8 +2,6 @@
 
 class BugzillaCacheMysql implements BugzillaCacheI
 {
-        
-
     public function set($key, $value, $ttl = 300)
     {
         $master = $this->_getDatabase();
@@ -25,12 +23,10 @@ class BugzillaCacheMysql implements BugzillaCacheI
                 __METHOD__
             );
         } else {
-            $res = $this->update(
+            $res = $master->update(
                 'bugzilla_cache',
-                array(
-                    'fetched_at' => $date
-                ),
-                '`key` = "' . $key_c . '"',
+                array('fetched_at' => $date),
+                array('key' => $key_c),
 
                 __METHOD__
             );
@@ -38,22 +34,28 @@ class BugzillaCacheMysql implements BugzillaCacheI
 
         return $res;
     }
-    
-    protected function _getDatabase($type = DB_MASTER) {
+
+	/**
+	 * @param $type int
+	 * @return DatabaseBase
+	 */
+	protected function _getDatabase($type = DB_MASTER) {
         return wfGetDB($type);
     }
-    
+
     public function get($key)
     {
          $slave = $this->_getDatabase(DB_SLAVE);
          $res = $slave->select(
-                        'bugzilla_cache',
-                        array('id', 'fetched_at', 'data', 'expires'),
-                        '`key` = "' . $key . '"',
-                        __METHOD__,
-                        array( 'ORDER BY' => 'fetched_at DESC',
-                               'LIMIT' => 1)
-            );
+            'bugzilla_cache',
+            array('id', 'fetched_at', 'data', 'expires'),
+            array( 'key' => $key ),
+            __METHOD__,
+            array(
+                'ORDER BY' => 'fetched_at DESC',
+                'LIMIT' => 1
+            )
+         );
 
         $row = $res->fetchRow();
 
@@ -61,17 +63,17 @@ class BugzillaCacheMysql implements BugzillaCacheI
             $this->expire($key); // This won't hurt us if the first condition is true.
             return;
         }
-        
+
         return $row['data'];
     }
-    
+
     public function expire($key)
     {
         $master = $this->_getDatabase();
         return $master->delete(
-                'bugzilla_cache',
-                array('`key`="' . $key .'"')
-            );
-        
+            'bugzilla_cache',
+            array('key' => $key)
+        );
+
     }
 }
