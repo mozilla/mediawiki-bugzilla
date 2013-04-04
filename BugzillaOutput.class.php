@@ -4,11 +4,11 @@ abstract class BugzillaOutput {
 
     public $response;
     public $cache;
-    
+
     public function __construct($config, $options, $title='') {
         $this->title    = $title;
         $this->config   = $config;
-        $this->error    = FALSE;
+        $this->error    = false;
         $this->response = new stdClass();
 
         // Make our query and possibly fetch the data
@@ -29,20 +29,20 @@ abstract class BugzillaOutput {
 
     public function render() {
         // Get our template path
-        $this->template = dirname(__FILE__) . '/templates/' . 
-                          $this->config['type'] . '/' . 
+        $this->template = dirname(__FILE__) . '/templates/' .
+                          $this->config['type'] . '/' .
                           $this->config['display'] . '.tpl';
 
         // Make sure a template is there
         if( !file_exists($this->template) ) {
-            $this->error = 'Invalid type ' . 
+            $this->error = 'Invalid type ' .
                            '(' . htmlspecialchars($this->config['type']) . ')' .
                            ' and display ' .
                            '(' . htmlspecialchars($this->config['display']) . ')' .
                            ' combination';
         }
 
-        // If there are any errors (either from the template path above or 
+        // If there are any errors (either from the template path above or
         // elsewhere) output them
         if( $this->error ) {
             return $this->_render_error($this->error);
@@ -57,13 +57,13 @@ abstract class BugzillaOutput {
         return $results;
 
     }
-    
+
     protected function _getCache()
     {
         if (!$this->cache) {
             $this->cache = Bugzilla::getCache();
         }
-        
+
         return $this->cache;
     }
 
@@ -72,7 +72,7 @@ abstract class BugzillaOutput {
 }
 
 class BugzillaBugListing extends BugzillaOutput {
-    
+
     protected function setup_template_data() {
 
         global $wgBugzillaDefaultFields;
@@ -81,7 +81,7 @@ class BugzillaBugListing extends BugzillaOutput {
         $this->response->fields = array();
 
         // Set the bug data for the templates
-        if(count($this->query->data['bugs']) > 0) {
+        if(isset($this->query->data['bugs']) && count($this->query->data['bugs']) > 0) {
             $this->response->bugs = $this->query->data['bugs'];
         }
 
@@ -93,7 +93,7 @@ class BugzillaBugListing extends BugzillaOutput {
             foreach( $tmp as $tmp_field ) {
                 $field = trim($tmp_field);
                 // Catch if the user specified the same field multiple times
-                if( !empty($field) && 
+                if( !empty($field) &&
                     !in_array($field, $this->response->fields) ) {
                     array_push($this->response->fields, $field);
                 }
@@ -150,7 +150,7 @@ abstract class BugzillaGraph extends BugzillaOutput {
             $this->response->image = $wgBugzillaChartUrl . '/' . $image;
         } else {
             $this->response->image = $wgBugzillaChartUrl . '/' . $this->generate_chart($key) . '.png';
-        } 
+        }
     }
 
 }
