@@ -1,6 +1,12 @@
 <?php
 
-require_once(dirname(__FILE__) . '/BugzillaOutput.class.php');
+$dir = dirname(__FILE__);
+require_once ($dir . '/BugzillaOutput.class.php');
+require_once ($dir . '/cache/BugzillaCacheI.class.php');
+require_once ($dir . '/cache/BugzillaCacheDummy.class.php');
+require_once ($dir . '/cache/BugzillaCacheApc.class.php');
+require_once ($dir . '/cache/BugzillaCacheMemcache.class.php');
+require_once ($dir . '/cache/BugzillaCacheSql.class.php');
 
 // Factory
 class Bugzilla {
@@ -48,5 +54,38 @@ class Bugzilla {
         return $b;
 
     }
+
+    /**
+     * Return the BugzillaCacheI extended class in charge
+     * for the cache backend in use.
+     *
+     * @param string $type
+     *
+     * @return string
+    */
+    public static function getCacheClass( $type ) {
+
+        $suffix = 'dummy';
+
+        if ( in_array( $type, array( 'mysql', 'postgresql', 'sqlite' ) ) ) {
+            $suffix = 'sql';
+        } elseif ( in_array( $type, array( 'apc', 'memcache' ) ) ) {
+            $suffix = $type;
+        }
+
+        return 'BugzillaCache' . ucwords( $suffix );
+    }
+
+    /**
+     * Build and return a working cache, depending on config.
+     *
+     * @return BugzillaCacheI object
+    */
+    public static function getCache() {
+        global $wgBugzillaCacheType;
+
+        $object = self::getCacheClass( $wgBugzillaCacheType );
+
+        return new $object();
+    }
 }
-?>

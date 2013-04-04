@@ -60,9 +60,8 @@ abstract class BugzillaOutput {
     
     protected function _getCache()
     {
-        global $wgCacheObject;
-        if(!$this->cache) {
-            $this->cache = new $wgCacheObject;
+        if (!$this->cache) {
+            $this->cache = Bugzilla::getCache();
         }
         
         return $this->cache;
