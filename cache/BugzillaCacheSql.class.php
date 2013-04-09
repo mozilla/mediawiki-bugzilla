@@ -1,7 +1,7 @@
 <?php
 
 /**
-*/
+ */
 class BugzillaCacheSql implements BugzillaCacheI
 {
     protected function _getDatabase($type = DB_MASTER) {
@@ -14,13 +14,10 @@ class BugzillaCacheSql implements BugzillaCacheI
      * @param integer $ttl
      *
      * @return boolean
-    */
+     */
     public function set($key, $value, $ttl = 300)
     {
         $master  = $this->_getDatabase();
-
-        $key_c   = $master->strencode($key);
-        $value_c = $master->strencode($value);
 
         $now     = time(); // Using time() because it's a PHP built-in.
         $expires = $now + $ttl;
@@ -29,8 +26,8 @@ class BugzillaCacheSql implements BugzillaCacheI
             $res = $master->insert(
                 'bugzilla_cache',
                 array(
-                    'key'     => $key_c,
-                    'data'    => $value_c,
+                    'key'     => $key,
+                    'data'    => $value,
                     'expires' => $expires
                 ),
                 __METHOD__
@@ -43,26 +40,29 @@ class BugzillaCacheSql implements BugzillaCacheI
     /**
      * @param string $key
      *
-     * @return string
-    */
+     * @return string|null
+     */
     public function get($key)
     {
         $slave = $this->_getDatabase(DB_SLAVE);
 
-        $key_c = $slave->strencode($key);
         $res   = $slave->select(
             'bugzilla_cache',
             array( 'id', 'data', 'expires' ),
-            '`key` = "' . $key_c . '"',
+            array( 'key' => $key ),
             __METHOD__,
             array( 'LIMIT' => 1 )
         );
 
+        if( !$res ) {
+            $this->expire($key);
+            return null;
+        }
         $row = $res->fetchRow();
 
         if (!$row || ($row['expires'] < time())) {
-            $this->expire($key_c); // This won't hurt us if the first condition is true.
-            return;
+            $this->expire($key); // This won't hurt us if the first condition is true.
+            return null;
         }
 
         return $row['data'];
@@ -72,7 +72,7 @@ class BugzillaCacheSql implements BugzillaCacheI
      * @param string $key
      *
      * @return boolean
-    */
+     */
     public function expire($key)
     {
         $master = $this->_getDatabase();
@@ -84,7 +84,8 @@ class BugzillaCacheSql implements BugzillaCacheI
     }
 
     /**
-    */
+     * @param $updater DatabaseUpdater
+     */
     final public static function setup($updater)
     {
         global $wgBugzillaCacheType;
