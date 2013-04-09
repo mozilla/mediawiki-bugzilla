@@ -1,9 +1,8 @@
-CREATE TABLE IF NOT EXISTS `bugzilla_cache` (
+CREATE TABLE IF NOT EXISTS /*$wgDBprefix*/bugzilla_cache (
   `id` integer(40) NOT NULL AUTO_INCREMENT,
   `key` varchar(255) NOT NULL DEFAULT '',
   `data` longtext,
   `expires` integer(11) NOT NULL DEFAULT 0,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB, DEFAULT CHARSET=binary;
-
-CREATE UNIQUE INDEX `key_unique` ON `bugzilla_cache` (`key`);
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX /*i*/uniq_bugzilla_cache_key (`key`)
+) /*$wgDBTableOptions*/;
