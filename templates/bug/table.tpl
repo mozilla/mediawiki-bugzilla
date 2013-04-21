@@ -13,11 +13,13 @@
                         echo 'ID';
                         break;
                     default:
-                        echo  htmlspecialchars(                      
-                                  ucfirst(                          
-                                      str_replace('_', ' ',          
-                                          preg_replace('/^cf_/', '', 
-                                              $field))));
+                        echo htmlspecialchars(
+                            ucfirst(
+                                str_replace('_', ' ',
+                                    preg_replace('/^cf_/', '', $field)
+                                )
+                            )
+                        );
                 }
                 echo "</th>\n";
             }
@@ -34,11 +36,10 @@
                     echo "<td class='bugzilla-data-$field'>";
 
                     // Get our template path
-                    $subtemplate = $base . 
-                                   escapeshellcmd(str_replace('..',
-                                                              'DOTS',
-                                                              $field)) .
-                                   '.tpl';
+                    $subtemplate = $base .
+                        escapeshellcmd(
+                            str_replace('..', 'DOTS', $field)
+                        ) . '.tpl';
 
                     // Make sure a template is there
                     if( !file_exists($subtemplate) ) {

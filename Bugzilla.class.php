@@ -89,3 +89,4 @@ class Bugzilla {
         return new $object();
     }
 }
+

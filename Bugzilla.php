@@ -17,10 +17,9 @@
 
 $wgExtensionCredits['other'][] = array(
     'name'        => 'Bugzilla',
-    'author'      => 'Christian Legnitto', 
+    'author'      => 'Christian Legnitto',
     'url'         => 'https://github.com/LegNeato/mediawiki-bugzilla',
-    'description' => 'This extension allows read-only integration with '.
-                     'Bugzilla via the REST API',
+    'descriptionmsg' => 'bugzilla-desc',
 );
 
 
@@ -31,6 +30,8 @@ $wgExtensionCredits['other'][] = array(
 
 $cwd = dirname(__FILE__); // We don't need to do this more than once!
 
+$wgExtensionMessagesFiles['Bugzilla'] =  "$cwd/Bugzilla.i18n.php";
+
 $wgAutoloadClasses['Bugzilla']           = $cwd . '/Bugzilla.class.php';
 $wgAutoloadClasses['BugzillaQuery']      = $cwd . '/BugzillaQuery.class.php';
 $wgAutoloadClasses['BugzillaOutput']     = $cwd . '/BugzillaOutput.class.php';
@@ -39,7 +40,6 @@ $wgAutoloadClasses['BugzillaCacheDummy'] = $cwd . '/cache/BugzillaCacheDummy.cla
 $wgAutoloadClasses['BugzillaCacheApc']   = $cwd . '/cache/BugzillaCacheApc.class.php';
 $wgAutoloadClasses['BugzillaCacheMemcache'] = $cwd . '/cache/BugzillaCacheMemcache.class.php';
 $wgAutoloadClasses['BugzillaCacheSql']   = $cwd . '/cache/BugzillaCacheSql.class.php';
-
 
 /**
  * These hooks are used by mediawiki to properly display the plugin information
@@ -50,7 +50,6 @@ $wgHooks['LoadExtensionSchemaUpdates'][] = 'BugzillaCreateCache';
 $wgHooks['BeforePageDisplay'][]          = 'BugzillaIncludeHTML';
 $wgHooks['ParserFirstCallInit'][]        = 'BugzillaParserInit';
 
-
 // Schema updates for the database cache
 function BugzillaCreateCache($updater) {
 
@@ -60,7 +59,7 @@ function BugzillaCreateCache($updater) {
     $class::setup($updater);
 
     // Let the other hooks keep processing
-    return TRUE;
+    return true;
 }
 
 // Add content to page HTML
@@ -76,24 +75,25 @@ function BugzillaIncludeHTML( &$out, &$sk ) {
         // Use local jquery ui
         $out->addScriptFile("$wgScriptPath/extensions/Bugzilla/web/jqueryui/1.8.14/jquery-ui.min.js");
 
-    // Add a local script file for the datatable
-    $out->addScriptFile("$wgScriptPath/extensions/Bugzilla/web/js/jquery.dataTables.js");
+        // Add a local script file for the datatable
+        $out->addScriptFile("$wgScriptPath/extensions/Bugzilla/web/js/jquery.dataTables.js");
 
-    // Add a local jquery css file
-    $out->addStyle("$wgScriptPath/extensions/Bugzilla/web/jqueryui/1.8.14/themes/base/jquery-ui.css");
+        // Add a local jquery css file
+        $out->addStyle("$wgScriptPath/extensions/Bugzilla/web/jqueryui/1.8.14/themes/base/jquery-ui.css");
 
-    // Add a local jquery UI theme css file
-    $out->addStyle("$wgScriptPath/extensions/Bugzilla/web/jqueryui/1.8.14/themes/smoothness/jquery-ui.css");
+        // Add a local jquery UI theme css file
+        $out->addStyle("$wgScriptPath/extensions/Bugzilla/web/jqueryui/1.8.14/themes/smoothness/jquery-ui.css");
 
-    // Add local datatable styles
-    $out->addStyle("$wgScriptPath/extensions/Bugzilla/web/css/demo_page.css");
-    $out->addStyle("$wgScriptPath/extensions/Bugzilla/web/css/demo_table.css");
+        // Add local datatable styles
+        $out->addStyle("$wgScriptPath/extensions/Bugzilla/web/css/demo_page.css");
+        $out->addStyle("$wgScriptPath/extensions/Bugzilla/web/css/demo_table.css");
 
-    // Add the script to do table magic
-    $out->addInlineScript('$(document).ready(function() { 
-                        $("table.bugzilla").dataTable({
-                                    "bJQueryUI": true
-                     })});');
+        // Add the script to do table magic
+        $out->addInlineScript('$(document).ready(function() {
+            $("table.bugzilla").dataTable({
+            "bJQueryUI": true
+            })});'
+        );
     }
 
     // Add local bugzilla extension styles
@@ -116,7 +116,7 @@ function BugzillaParserInit( Parser &$parser ) {
     $parser->setHook( $wgBugzillaTagName, 'BugzillaRender' );
 
     // Let the other hooks keep processing
-    return TRUE;
+    return true;
 }
 
 // Function to be called when our tag is found by the parser
@@ -162,7 +162,7 @@ $wgBugzillaMethod      = 'REST'; // XML-RPC and JSON-RPC may be supported later
 $wgBugzillaCacheType = 'mysql'; // valid values are: memcache, apc, mysql, postgresql, sqlite, dummy.
 $wgBugzillaCacheMins = 5; // Minutes to cache results (default: 5)
 
-$wgBugzillaJqueryTable = TRUE; // Use a jQuery table for display (default: true)
+$wgBugzillaJqueryTable = true; // Use a jQuery table for display (default: true)
 
 // Charts
 $wgBugzillaChartStorage = realpath($cwd . '/charts'); // Location to store generated bug charts
