@@ -30,7 +30,7 @@ $wgExtensionCredits['other'][] = array(
 
 $cwd = dirname(__FILE__); // We don't need to do this more than once!
 
-$wgExtensionMessagesFiles['Bugzilla'] =  "$dir/Bugzilla.i18n.php";
+$wgExtensionMessagesFiles['Bugzilla'] =  "$cwd/Bugzilla.i18n.php";
 
 $wgAutoloadClasses['Bugzilla']           = $cwd . '/Bugzilla.class.php';
 $wgAutoloadClasses['BugzillaQuery']      = $cwd . '/BugzillaQuery.class.php';
