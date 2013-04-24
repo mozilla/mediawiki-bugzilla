@@ -13,10 +13,11 @@
 
                 // Get our template path
                 $subtemplate = $base . 
-                               escapeshellcmd(str_replace('..',
-                                                          'DOTS',
-                                                          $field)) .
-                               '.tpl';
+                    escapeshellcmd(str_replace('..',
+                        'DOTS',
+                        $field
+                    )
+                ) . '.tpl';
 
                 // Make sure a template is there
                 if( !file_exists($subtemplate) ) {
