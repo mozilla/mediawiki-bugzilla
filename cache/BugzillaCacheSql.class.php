@@ -26,7 +26,7 @@ class BugzillaCacheSql implements BugzillaCacheI
             $res = $master->insert(
                 'bugzilla_cache',
                 array(
-                    'key'     => $key,
+                    $master->addIdentifierQuotes( 'key' )     => $key,
                     'data'    => $value,
                     'expires' => $expires
                 ),
@@ -49,7 +49,7 @@ class BugzillaCacheSql implements BugzillaCacheI
         $res   = $slave->select(
             'bugzilla_cache',
             array( 'id', 'data', 'expires' ),
-            array( 'key' => $key ),
+            array( $slave->addIdentifierQuotes( 'key' ) => $key ),
             __METHOD__,
             array( 'LIMIT' => 1 )
         );
