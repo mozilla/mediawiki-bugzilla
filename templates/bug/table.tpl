@@ -29,8 +29,16 @@
     <tbody>
         <?php
             $base = dirname(__FILE__) . '/../../templates/fields/';
-
+            
+            $all = count($response->bugs);
+            $resolved = 0;
+            
             foreach( $response->bugs as $bug ) {
+                
+                if($bug['status'] == 'RESOLVED') {
+                    $resolved++;
+                }
+                
                 echo "<tr class='bugzilla-status-${bug['status']}'>";
                 foreach( $response->fields as $field ) {
                     echo "<td class='bugzilla-data-$field'>";
@@ -57,3 +65,5 @@
         ?>
     </tbody>
 </table>
+
+<strong><?= $all-$resolved ?> Open; <?= $resolved ?> Resolved; <?= $all ?> Total (<?php echo 100*(round($resolved/$all, 4)) ?>% complete)</strong>
