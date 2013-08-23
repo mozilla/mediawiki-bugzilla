@@ -113,6 +113,15 @@ and b) display those columns.
 
 ![Screenshot of the above](http://i.imgur.com/p3u7r.png "Screenshot of the above")
 
+You may also limit the total number of results displayed and/or randomize the order of the results:
+
+    <bugzilla limit="5" randomize>
+        {
+            "whiteboard": "EasyHack",
+            "status": "NEW"
+        }
+    </bugzilla>
+
 
 Charting
 ================================
