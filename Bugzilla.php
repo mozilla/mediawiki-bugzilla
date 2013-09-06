@@ -6,7 +6,7 @@
 /**
  * This is the configuration file for mediawiki-bugzilla. It contains important
  * settings that should be reviewed and customized for your environment. Please
- * see the instructions on each line for details about what should be 
+ * see the instructions on each line for details about what should be
  * customized and how to properly install the application.
  *
  * For maximum commpatibility with Mediawiki, settings modifications should be
@@ -70,6 +70,7 @@ function BugzillaIncludeHTML( &$out, &$sk ) {
 
     global $wgScriptPath;
     global $wgBugzillaJqueryTable;
+    global $wgBugzillaTable;
 
     if( $wgBugzillaJqueryTable ) {
         // Use local jquery
@@ -90,11 +91,12 @@ function BugzillaIncludeHTML( &$out, &$sk ) {
         // Add local datatable styles
         $out->addStyle("$wgScriptPath/extensions/Bugzilla/web/css/demo_page.css");
         $out->addStyle("$wgScriptPath/extensions/Bugzilla/web/css/demo_table.css");
-
         // Add the script to do table magic
         $out->addInlineScript('$(document).ready(function() {
             $("table.bugzilla").dataTable({
-            "bJQueryUI": true
+            "bJQueryUI": true,
+            "aLengthMenu": ' . $wgBugzillaTable['lengthMenu'] . ',
+            "iDisplayLength" : ' . $wgBugzillaTable['pageSize'] . ',
             })});'
         );
     }
@@ -178,4 +180,9 @@ $wgBugzillaDefaultFields = array(
     'summary',
     'priority',
     'status',
+);
+
+$wgBugzillaTable = array(
+  'pageSize' => 10, //default pagination count
+  'lengthMenu' => '[10, 25, 50, 100]', //default length set; example options [[5, 10, 15, 25, 50, 100 , -1], [5, 10, 15, 25, 50, 100, "All"]]]
 );
