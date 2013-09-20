@@ -66,4 +66,4 @@
     </tbody>
 </table>
 
-<strong><?= $all-$resolved ?> Open; <?= $resolved ?> Resolved; <?= $all ?> Total (<?php echo 100*(round($resolved/$all, 4)) ?>% complete)</strong>
+<strong><a href="?action=purge">Refresh Bugs</a>&nbsp;&nbsp;&nbsp;<?= $all-$resolved ?> Open; <?= $resolved ?> Resolved; <?= $all ?> Total (<?php echo 100*(round($resolved/$all, 4)) ?>% complete)</strong>
