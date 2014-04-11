@@ -1,4 +1,4 @@
-<ul class="bugzilla ui-helper-reset">
+<ul>
     <?php
         $base = dirname(__FILE__) . '/../../templates/fields/';
 
