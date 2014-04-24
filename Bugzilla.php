@@ -69,6 +69,7 @@ function BugzillaCreateCache($updater) {
 function BugzillaIncludeHTML( &$out, &$sk ) {
 
     global $wgScriptPath;
+    global $wgVersion;
     global $wgBugzillaJqueryTable;
     global $wgBugzillaTable;
 
