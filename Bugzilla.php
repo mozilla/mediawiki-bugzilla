@@ -69,24 +69,28 @@ function BugzillaCreateCache($updater) {
 function BugzillaIncludeHTML( &$out, &$sk ) {
 
     global $wgScriptPath;
+    global $wgVersion;
     global $wgBugzillaJqueryTable;
     global $wgBugzillaTable;
 
     if( $wgBugzillaJqueryTable ) {
-        // Use local jquery
-        $out->addScriptFile("$wgScriptPath/extensions/Bugzilla/web/jquery/1.6.2/jquery.min.js");
+        if( version_compare( $wgVersion, '1.17', '<') ) {
+            // Use local jquery
+            $out->addScriptFile("$wgScriptPath/extensions/Bugzilla/web/jquery/1.6.2/jquery.min.js");
 
-        // Use local jquery ui
-        $out->addScriptFile("$wgScriptPath/extensions/Bugzilla/web/jqueryui/1.8.14/jquery-ui.min.js");
+            // Use local jquery ui
+            $out->addScriptFile("$wgScriptPath/extensions/Bugzilla/web/jqueryui/1.8.14/jquery-ui.min.js");
+
+            // Add a local jquery css file
+            $out->addStyle("$wgScriptPath/extensions/Bugzilla/web/jqueryui/1.8.14/themes/base/jquery-ui.css");
+
+            // Add a local jquery UI theme css file
+            $out->addStyle("$wgScriptPath/extensions/Bugzilla/web/jqueryui/1.8.14/themes/smoothness/jquery-ui.css");
+        }
 
         // Add a local script file for the datatable
         $out->addScriptFile("$wgScriptPath/extensions/Bugzilla/web/js/jquery.dataTables.js");
 
-        // Add a local jquery css file
-        $out->addStyle("$wgScriptPath/extensions/Bugzilla/web/jqueryui/1.8.14/themes/base/jquery-ui.css");
-
-        // Add a local jquery UI theme css file
-        $out->addStyle("$wgScriptPath/extensions/Bugzilla/web/jqueryui/1.8.14/themes/smoothness/jquery-ui.css");
 
         // Add local datatable styles
         $out->addStyle("$wgScriptPath/extensions/Bugzilla/web/css/demo_page.css");
