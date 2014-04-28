@@ -25,6 +25,15 @@ $wgExtensionCredits['other'][] = array(
     'descriptionmsg' => 'bugzilla-desc',
 );
 
+$wgResourceModules['ext.Bugzilla'] = array(
+    'scripts' => array( 'web/js/jquery.dataTables.js' ),
+    'styles' => array( 'web/css/demo_page.css', 'web/css/demo_table.css', 'web/css/bugzilla.css' ),
+    'messages' => array( 'bugzilla-hello-world', 'bugzilla-goodbye-world' ),
+    'dependencies' => array( 'jquery.ui.core' ),
+    'position' => 'top', // jquery.dataTables.js errors otherwise :(
+    'localBasePath' => __DIR__,
+    'remoteExtPath' => 'Bugzilla'
+);
 
 /**
  * Classes to be autoloaded by mediawiki. Should you add any cache options, you
@@ -86,15 +95,19 @@ function BugzillaIncludeHTML( &$out, &$sk ) {
 
             // Add a local jquery UI theme css file
             $out->addStyle("$wgScriptPath/extensions/Bugzilla/web/jqueryui/1.8.14/themes/smoothness/jquery-ui.css");
+
+            // Add a local script file for the datatable
+            $out->addScriptFile("$wgScriptPath/extensions/Bugzilla/web/js/jquery.dataTables.js");
+
+            // Add local datatable styles
+            $out->addStyle("$wgScriptPath/extensions/Bugzilla/web/css/demo_page.css");
+            $out->addStyle("$wgScriptPath/extensions/Bugzilla/web/css/demo_table.css");
+
+            // Add local bugzilla extension styles
+            $out->addStyle("$wgScriptPath/extensions/Bugzilla/web/css/bugzilla.css");
+
         }
 
-        // Add a local script file for the datatable
-        $out->addScriptFile("$wgScriptPath/extensions/Bugzilla/web/js/jquery.dataTables.js");
-
-
-        // Add local datatable styles
-        $out->addStyle("$wgScriptPath/extensions/Bugzilla/web/css/demo_page.css");
-        $out->addStyle("$wgScriptPath/extensions/Bugzilla/web/css/demo_table.css");
         // Add the script to do table magic
         $out->addInlineScript('$(document).ready(function() {
             $("table.bugzilla").dataTable({
@@ -105,13 +118,12 @@ function BugzillaIncludeHTML( &$out, &$sk ) {
         );
     }
 
-    // Add local bugzilla extension styles
-    $out->addStyle("$wgScriptPath/extensions/Bugzilla/web/css/bugzilla.css");
-
     // Let the user optionally override bugzilla extension styles
     if( file_exists("$wgScriptPath/extensions/Bugzilla/web/css/custom.css") ) {
         $out->addStyle("$wgScriptPath/extensions/Bugzilla/web/css/custom.css");
     }
+
+    $out->addModules('ext.Bugzilla');
 
     // Let the other hooks keep processing
     return TRUE;
