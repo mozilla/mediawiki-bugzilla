@@ -1,6 +1,14 @@
 <?php
     global $wgBugzillaJqueryTable;
     $extra_class = ($wgBugzillaJqueryTable) ? 'jquery ui-helper-reset' : '';
+
+    $base = dirname(__FILE__) . '/../../templates/fields/';
+
+    $all = count($response->bugs);
+
+    if ($all > 0) {
+
+        $resolved = 0;
 ?>
 <table class="bugzilla <?php echo $extra_class ?>">
     <thead>
@@ -28,17 +36,12 @@
     </thead>
     <tbody>
         <?php
-            $base = dirname(__FILE__) . '/../../templates/fields/';
-            
-            $all = count($response->bugs);
-            $resolved = 0;
-            
             foreach( $response->bugs as $bug ) {
-                
+
                 if($bug['status'] == 'RESOLVED') {
                     $resolved++;
                 }
-                
+
                 echo "<tr class='bugzilla-status-${bug['status']}'>";
                 foreach( $response->fields as $field ) {
                     echo "<td class='bugzilla-data-$field'>";
@@ -67,3 +70,8 @@
 </table>
 
 <strong><?= $all-$resolved ?> Open; <?= $resolved ?> Resolved; <?= $all ?> Total (<?php echo 100*(round($resolved/$all, 4)) ?>% complete)</strong>
+<?php
+    } else {
+        echo "<p>No bug was found.</p>\n";
+    } // if ($all > 0)
+?>
