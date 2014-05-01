@@ -35,7 +35,7 @@
             
             foreach( $response->bugs as $bug ) {
                 
-                if($bug['status'] == 'RESOLVED') {
+                if($bug['status'] == 'RESOLVED' || $bug['status'] == 'VERIFIED') {
                     $resolved++;
                 }
                 
@@ -66,4 +66,4 @@
     </tbody>
 </table>
 
-<strong><?= $all-$resolved ?> Open; <?= $resolved ?> Resolved; <?= $all ?> Total (<?php echo 100*(round($resolved/$all, 4)) ?>% complete)</strong>
+<strong><?php echo($all-$resolved) ?> Open; <?php echo($resolved) ?> Resolved; <?php echo($all) ?> Total (<?php echo 100*(round($resolved/$all, 4)) ?>% complete)</strong>
