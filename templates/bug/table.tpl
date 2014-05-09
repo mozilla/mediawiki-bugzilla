@@ -66,4 +66,4 @@
     </tbody>
 </table>
 
-<strong><?php echo $all-$resolved ?> Open; <?php echo $resolved ?> Resolved; <?php echo $all ?> Total (<?php echo 100*(round($resolved/$all, 4)) ?>% complete)</strong>
+<strong><?php echo $all-$resolved ?> Open; <?php echo $resolved ?> Resolved; <?php echo $all ?> Total (<?php if ($all != 0) echo 100*(round($resolved/$all, 4)); else echo 0 ?>% complete)</strong>
