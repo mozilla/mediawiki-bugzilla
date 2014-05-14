@@ -29,16 +29,20 @@
     <tbody>
         <?php
             $base = dirname(__FILE__) . '/../../templates/fields/';
-            
+
             $all = count($response->bugs);
             $resolved = 0;
-            
+            $verified = 0;
+
             foreach( $response->bugs as $bug ) {
-                
-                if($bug['status'] == 'RESOLVED' || $bug['status'] == 'VERIFIED') {
+
+                if($bug['status'] == 'RESOLVED') {
                     $resolved++;
                 }
-                
+                if($bug['status'] == 'VERIFIED') {
+                    $verified++;
+                }
+
                 echo "<tr class='bugzilla-status-${bug['status']}'>";
                 foreach( $response->fields as $field ) {
                     echo "<td class='bugzilla-data-$field'>";
@@ -66,4 +70,9 @@
     </tbody>
 </table>
 
-<strong><?php echo $all-$resolved ?> Open; <?php echo $resolved ?> Resolved; <?php echo $all ?> Total (<?php if ($all != 0) echo 100*(round($resolved/$all, 4)); else echo 0 ?>% complete)</strong>
+<strong>
+<?php echo $all ?> Total;
+<?php echo $all-$resolved-$verified ?> Open (<?php if ($all != 0) echo 100*(round(($all-$resolved-$verified)/$all, 4)); else echo 0 ?>%);
+<?php echo $resolved ?> Resolved (<?php if ($all != 0) echo 100*(round(($resolved)/$all, 4)); else echo 0 ?>%);
+<?php echo $verified ?> Verified (<?php if ($all != 0) echo 100*(round(($verified)/$all, 4)); else echo 0 ?>%);
+</strong>
