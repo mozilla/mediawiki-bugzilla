@@ -114,6 +114,8 @@ function BugzillaIncludeHTML( &$out, &$sk ) {
             "bJQueryUI": true,
             "aLengthMenu": ' . $wgBugzillaTable['lengthMenu'] . ',
             "iDisplayLength" : ' . $wgBugzillaTable['pageSize'] . ',
+            /* Disable initial sort */
+            "aaSorting": [],
             })});'
         );
     }
