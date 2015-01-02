@@ -202,5 +202,5 @@ $wgBugzillaDefaultFields = array(
 
 $wgBugzillaTable = array(
   'pageSize' => 10, //default pagination count
-  'lengthMenu' => '[10, 25, 50, 100]', //default length set; example options [[5, 10, 15, 25, 50, 100 , -1], [5, 10, 15, 25, 50, 100, "All"]]]
+  'lengthMenu' => '[[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]]', //default length set
 );
