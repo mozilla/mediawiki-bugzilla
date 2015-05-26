@@ -70,9 +70,15 @@
     </tbody>
 </table>
 
+<?php
+if ($this->config['stats'] == 'show') {
+?>
 <strong>
 <?php echo $all ?> Total;
 <?php echo $all-$resolved-$verified ?> Open (<?php if ($all != 0) echo 100*(round(($all-$resolved-$verified)/$all, 4)); else echo 0 ?>%);
 <?php echo $resolved ?> Resolved (<?php if ($all != 0) echo 100*(round(($resolved)/$all, 4)); else echo 0 ?>%);
 <?php echo $verified ?> Verified (<?php if ($all != 0) echo 100*(round(($verified)/$all, 4)); else echo 0 ?>%);
 </strong>
+<?php
+}
+?>
