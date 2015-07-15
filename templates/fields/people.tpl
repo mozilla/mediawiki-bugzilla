@@ -20,10 +20,8 @@
 
         if( empty($rn) ) {
             $out = $n;
-        }elseif( empty($n) ) {
-            $out = $rn;
         }else {
-            $out = "$rn ($n)";
+            $out = $rn;
         }
 
         // Special case for "nobody"
