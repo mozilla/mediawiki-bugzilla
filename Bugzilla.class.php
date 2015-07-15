@@ -20,6 +20,7 @@ class Bugzilla {
         $theconfig = array(
             'type'    => 'bug',
             'display' => 'table',
+            'stats' => 'show',
         );
 
         // Overlay user's desired configuration

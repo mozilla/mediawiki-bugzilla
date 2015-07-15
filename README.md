@@ -46,6 +46,20 @@ By default, it will output a colored table:
 Note that the wiki tag name defaults to "bugzilla" but is 
 configurable by the administrator.
 
+Options
+================================
+
+Valid bugzilla tag options are:
+
+* type: ``"bug"`` or ``"count"`` (defaults to bug)
+* For type bug:
+    * display: ``"table"`` or ``"list"`` (defaults to table)
+* For type count:
+    * display: ``"bar"`` or ``"pie"``
+    * size: ``"small"``, ``medium"`` or ``"large"`` (defaults to large)
+* stats: ``"show"`` or ``"hide"`` (defaults to "show")
+
+
 Examples
 ================================
 
@@ -67,9 +81,10 @@ All new bugs flagged as uiwanted in the whiteboard:
         }
     </bugzilla>
 
-All bugs in the bugzilla.org component that were resolved in 2011:	
+All bugs in the bugzilla.org component that were resolved in 2011,
+with the stats summary hidden:	
 
-    <bugzilla>
+    <bugzilla stats="hide">
         {
             "component": "bugzilla.org",
             "changed_after": "2011-01-01",
