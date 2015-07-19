@@ -2,7 +2,7 @@
     global $wgBugzillaJqueryTable;
     $extra_class = ($wgBugzillaJqueryTable) ? 'jquery ui-helper-reset' : '';
 ?>
-<table class="bugzilla <?php echo $extra_class ?>">
+<table class="wikitable sortable bugzilla <?php echo $extra_class ?>">
     <thead>
         <tr>
         <?php
