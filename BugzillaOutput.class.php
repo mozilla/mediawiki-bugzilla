@@ -89,7 +89,11 @@ class BugzillaBugListing extends BugzillaOutput {
         if( isset($this->query->options['include_fields']) &&
             !empty($this->query->options['include_fields']) ) {
             // User specified some fields
-            $tmp = @explode(',', $this->query->options['include_fields']);
+            if (!is_array($this->query->options['include_fields'])) {
+                $tmp = @explode(',', $this->query->options['include_fields']);
+            } else {
+                $tmp = &$this->query->options['include_fields'];
+            }
             foreach( $tmp as $tmp_field ) {
                 $field = trim($tmp_field);
                 // Catch if the user specified the same field multiple times
