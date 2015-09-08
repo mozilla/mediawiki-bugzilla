@@ -81,7 +81,7 @@ class BugzillaCacheSql implements BugzillaCacheI
 
         return $master->delete(
             'bugzilla_cache',
-            array('`key`="' . $key . '"')
+            array('key' => $key)
         );
     }
 
