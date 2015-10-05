@@ -1,5 +1,5 @@
 {
 	"@metadata": {
 	},
-	'bugzilla-desc' => 'This extension allows read-only integration with Bugzilla via the REST API'
+	"bugzilla-desc" => "This extension allows read-only integration with Bugzilla via the REST API"
 }

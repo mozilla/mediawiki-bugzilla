@@ -1,7 +1,7 @@
 {
 	"@metadata": {
 	},
-	'bugzilla-desc' => '[[Special:Version]] description'
+	"bugzilla-desc" => "[[Special:Version]] description"
 }
 
 
