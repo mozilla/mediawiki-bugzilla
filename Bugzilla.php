@@ -21,7 +21,7 @@
 $wgExtensionCredits['other'][] = array(
     'name'        => 'Bugzilla',
     'author'      => 'Christian Legnitto',
-    'url'         => 'https://github.com/LegNeato/mediawiki-bugzilla',
+    'url'         => 'https://github.com/mozilla/mediawiki-bugzilla',
     'descriptionmsg' => 'bugzilla-desc',
     'license-name' => 'MPL2'
 );
