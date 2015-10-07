@@ -42,6 +42,7 @@ $wgResourceModules['ext.Bugzilla'] = array(
  */
 
 $cwd = dirname(__FILE__); // We don't need to do this more than once!
+$wgMessagesDirs['Bugzilla'] = __DIR__ . '/i18n';
 
 $wgAutoloadClasses['Bugzilla']           = $cwd . '/Bugzilla.class.php';
 $wgAutoloadClasses['BugzillaQuery']      = $cwd . '/BugzillaQuery.class.php';
