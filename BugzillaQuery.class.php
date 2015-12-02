@@ -311,7 +311,7 @@ class BugzillaJSONRPCQuery extends BugzillaBaseQuery {
 
         $this->getJsonData($method, $this->options);
         $this->options = $saved_options;
-        // Retore the real options, removing anything we synthesized
+        // Restore the real options, removing anything we synthesized
     }
 
     protected function getJsonData($method, $params)
