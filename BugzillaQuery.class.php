@@ -12,7 +12,7 @@ class BugzillaQuery {
 
         switch ( strtolower( $wgBugzillaMethod ) ) {
         case 'xml-rpc':  return new BugzillaXMLRPCQuery ($type, $options, $title); break;
-        case 'json-rpc': return new BugzillaJSONRPCQuery($type, $options, $title); break; //FIXME: BugzillaJSONRPCQuery class doesn't exist
+        case 'json-rpc': return new BugzillaJSONRPCQuery($type, $options, $title); break;
         default:         return new BugzillaRESTQuery   ($type, $options, $title); break;
         }
     }
@@ -254,6 +254,88 @@ class BugzillaRESTQuery extends BugzillaBaseQuery {
                            $this->data['message'];
         }
     }
+}
+
+/**
+*/
+class BugzillaJSONRPCQuery extends BugzillaBaseQuery {
+
+    function __construct($type, $options, $title='') {
+
+        global $wgBugzillaURL;
+        global $wgBugzillaDefaultFields;
+
+        // add include_fields
+        parent::__construct($type, $options, $title);
+
+        $this->url = $wgBugzillaURL . '/jsonrpc.cgi';
+
+        // See what sort of REST query we are going to
+        switch( $type ) {
+
+            // Whitelist
+            case 'count':
+                $this->error = "Type count is not supported yet";
+                break;
+            // Default to a bug query
+            case 'bug':
+            default:
+                $this->synthetic_fields = $wgBugzillaDefaultFields;
+                break;
+        }
+
+        $this->fetch();
+    }
+
+    // Load data from the Bugzilla JSONRPC API
+    public function _fetch_by_options() {
+        $method = 'Bug.search';
+
+        // Save the real options
+        $saved_options = $this->options;
+
+        if(!isset($this->options['include_fields'])) {
+            $this->options['include_fields'] = array();
+        }
+
+        if(!is_array($this->options['include_fields'])) {
+            (array)$this->options['include_fields'];
+        }
+
+        // Add any synthetic fields to the options
+        if( !empty($this->synthetic_fields) ) {
+            $this->options['include_fields'] =
+                @array_merge((array)$this->options['include_fields'],
+                             $this->synthetic_fields);
+        }
+
+        $this->getJsonData($method, $this->options);
+        $this->options = $saved_options;
+        // Retore the real options, removing anything we synthesized
+    }
+
+    protected function getJsonData($method, $params)
+    {
+        $query = json_encode($params, true);
+        $url = $this->url."?method=$method&params=[".urlencode($query)."]";
+
+        $req = MWHttpRequest::factory($url, array(
+                    'sslVerifyHost' => false,
+                    'sslVerifyCert' => false
+                  )
+              );
+        $status = $req->execute();
+
+        if(!$status->isOK()) {
+            $this->error = $res->getMessage();
+            return false;
+        } else {
+            $this->rawData = $req->getContent();
+            $params = json_decode($this->rawData, true);
+            $this->data = $params['result'];
+            return true;
+       }
+   }
 }
 
 /**

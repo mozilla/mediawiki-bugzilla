@@ -122,7 +122,7 @@ and b) display those columns.
     <bugzilla>
     {
         "whiteboard": "[mediawiki-bugzilla]",
-        "include_fields": "id, summary, whiteboard, status, resolution"
+        "include_fields": ["id", "summary", "whiteboard", "status", "resolution"]
     }
     </bugzilla>
 

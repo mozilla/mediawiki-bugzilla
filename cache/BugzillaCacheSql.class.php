@@ -78,11 +78,19 @@ class BugzillaCacheSql implements BugzillaCacheI
     public function expire($key)
     {
         $master = $this->_getDatabase();
+        global $wgBugzillaCacheType;
 
-        return $master->delete(
-            'bugzilla_cache',
-            array('key' => $key)
-        );
+        if ($wgBugzillaCacheType == 'mysql') {
+            return $master->delete(
+                'bugzilla_cache',
+                array('`key`="' . $key . '"')
+            );
+        } else {
+            return $master->delete(
+                'bugzilla_cache',
+                array('key' => $key)
+            );
+        }
     }
 
     /**
