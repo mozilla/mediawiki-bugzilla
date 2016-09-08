@@ -1,6 +1,12 @@
 <?php
     global $wgBugzillaJqueryTable;
     $extra_class = ($wgBugzillaJqueryTable) ? 'jquery ui-helper-reset' : '';
+
+    $all = count($response->bugs);
+    $resolved = 0;
+    $verified = 0;
+
+    if ($all > 0) {
 ?>
 <table class="wikitable sortable bugzilla <?php echo $extra_class ?>">
     <thead>
@@ -29,10 +35,6 @@
     <tbody>
         <?php
             $base = dirname(__FILE__) . '/../../templates/fields/';
-
-            $all = count($response->bugs);
-            $resolved = 0;
-            $verified = 0;
 
             foreach( $response->bugs as $bug ) {
 
@@ -69,15 +71,19 @@
         ?>
     </tbody>
 </table>
-
 <?php
+
+    } else {
+        echo '<p>No results.</p>';
+    } // if ($all > 0)
+
 if ($this->config['stats'] == 'show') {
 ?>
 <strong>
 <?php echo $all ?> Total;
-<?php echo $all-$resolved-$verified ?> Open (<?php if ($all != 0) echo 100*(round(($all-$resolved-$verified)/$all, 4)); else echo 0 ?>%);
-<?php echo $resolved ?> Resolved (<?php if ($all != 0) echo 100*(round(($resolved)/$all, 4)); else echo 0 ?>%);
-<?php echo $verified ?> Verified (<?php if ($all != 0) echo 100*(round(($verified)/$all, 4)); else echo 0 ?>%);
+<?php echo $all-$resolved-$verified ?> Open (<?php if ($all > 0) echo 100*(round(($all-$resolved-$verified)/$all, 4)); else echo 0 ?>%);
+<?php echo $resolved ?> Resolved (<?php if ($all > 0) echo 100*(round(($resolved)/$all, 4)); else echo 0 ?>%);
+<?php echo $verified ?> Verified (<?php if ($all > 0) echo 100*(round(($verified)/$all, 4)); else echo 0 ?>%);
 </strong>
 <?php
 }
