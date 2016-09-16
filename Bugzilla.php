@@ -18,12 +18,15 @@
  * Application metadata and credits. Should not be changed.
  */
 
+$wgBugzillaExtVersion = '1.0.0';
+
 $wgExtensionCredits['other'][] = array(
     'name'        => 'Bugzilla',
     'author'      => 'Christian Legnitto',
     'url'         => 'https://github.com/LegNeato/mediawiki-bugzilla',
     'descriptionmsg' => 'bugzilla-desc',
-    'license-name' => 'MPL2'
+    'license-name' => 'MPL2',
+    'version'     => $wgBugzillaExtVersion;
 );
 
 $wgResourceModules['ext.Bugzilla'] = array(
