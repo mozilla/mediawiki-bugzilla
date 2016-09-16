@@ -182,6 +182,15 @@ class BugzillaRESTQuery extends BugzillaBaseQuery {
         $this->fetch();
     }
 
+    public function user_agent() {
+        global $wgBugzillaExtVersion;
+        global $wgVersion;
+
+        return 'MediawikiBugzilla/'.$wgBugzillaExtVersion
+            .' MediaWiki/'.$wgVersion
+            .' PHP/'.PHP_VERSION;
+    }
+
     // Load data from the Bugzilla REST API
     public function _fetch_by_options() {
 
@@ -202,6 +211,7 @@ class BugzillaRESTQuery extends BugzillaBaseQuery {
         // The REST API requires these
         $request->setHeader('Accept', 'application/json');
         $request->setHeader('Content-Type', 'application/json');
+        $request->setHeader('User-Agent', $this->user_agent());
 
         // Save the real options
         $saved_options = $this->options;
