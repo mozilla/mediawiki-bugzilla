@@ -11,13 +11,7 @@ abstract class BugzillaOutput {
         $this->error    = false;
         $this->response = new stdClass();
 
-        // Make our query and possibly fetch the data
         $this->query = BugzillaQuery::create($config['type'], $options, $title);
-
-        // Bubble up any query errors
-        if( $this->query->error ) {
-            $this->error = $this->query->error;
-        }
     }
 
     protected function _render_error($error) {
@@ -27,7 +21,15 @@ abstract class BugzillaOutput {
         return ob_get_clean();
     }
 
+    public function fetch() {
+        $this->query->fetch();
+    }
+
     public function render() {
+        if( $this->query->error ) {
+            return $this->_render_error($this->query->error);
+        }
+
         // Get our template path
         $this->template = dirname(__FILE__) . '/templates/' .
                           $this->config['type'] . '/' .
@@ -42,8 +44,6 @@ abstract class BugzillaOutput {
                            ' combination';
         }
 
-        // If there are any errors (either from the template path above or
-        // elsewhere) output them
         if( $this->error ) {
             return $this->_render_error($this->error);
         }

@@ -178,8 +178,6 @@ class BugzillaRESTQuery extends BugzillaBaseQuery {
                 // Even if the user didn't specify, we need these
                 $this->synthetic_fields = $wgBugzillaDefaultFields;
         }
-
-        $this->fetch();
     }
 
     public function user_agent() {
@@ -293,8 +291,6 @@ class BugzillaJSONRPCQuery extends BugzillaBaseQuery {
                 $this->synthetic_fields = $wgBugzillaDefaultFields;
                 break;
         }
-
-        $this->fetch();
     }
 
     // Load data from the Bugzilla JSONRPC API
@@ -360,8 +356,6 @@ class BugzillaXMLRPCQuery extends BugzillaBaseQuery {
         parent::__construct($type, $options, $title);
 
         $this->url = $wgBugzillaURL . '/xmlrpc.cgi';
-
-        $this->fetch();
     }
 
     // Load data from the Bugzilla XMLRPC API
