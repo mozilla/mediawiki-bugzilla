@@ -22,6 +22,8 @@ class BugzillaQuery {
 abstract class BugzillaBaseQuery {
 
     public function __construct($type, $options, $title) {
+        global $wgBugzillaDefaultFields;
+
         $this->type             = $type;
         $this->title            = $title;
         $this->url              = FALSE;
@@ -30,7 +32,7 @@ abstract class BugzillaBaseQuery {
         $this->data             = array();
         $this->synthetic_fields = array();
         $this->cache            = FALSE;
-        $this->_set_options($options);
+        $this->options          = $this->prepare_options($options, $wgBugzillaDefaultFields);
     }
 
     protected function _getCache()
@@ -107,9 +109,6 @@ abstract class BugzillaBaseQuery {
 
         global $wgBugzillaCacheMins;
 
-        // We need *some* options to do anything
-        if( !isset($this->options) || empty($this->options) ) { return; }
-
         // Don't do anything if we already had an error
         if( $this->error ) { return; }
 
@@ -135,13 +134,50 @@ abstract class BugzillaBaseQuery {
         }
     }
 
-    protected function _set_options($query_options_raw) {
-        // Make sure query options are valid JSON
-        $this->options = json_decode($query_options_raw, true);
-        if( !$query_options_raw || !$this->options ) {
-            $this->error = 'Query options must be valid json';
-            return;
+    /**
+     * Parse/prepare query options
+     * and set appropriate, working defaults.
+     *
+     * See BugzillaQueryTest::testPrepareOptions().
+     *
+     * @param String $query_options_raw
+     *
+     * @return array prepared options array
+    */
+    public function prepare_options($query_options_raw, $default_fields = array()) {
+
+        $options = array();
+        $query_options_raw = trim($query_options_raw);
+
+        // if no query is provided, at least set a working default
+        // so that first experience is nicer than an error message.
+        if (!$query_options_raw) {
+            $options['include_fields'] = $default_fields;
+
+        } else {
+            $options = json_decode($query_options_raw, true);
+
+            if ($options === null) {
+                $this->error = 'Query options must be valid JSON.';
+                return $options;
+            }
+
+            if (!isset($options['include_fields'])
+                || empty($options['include_fields'])) {
+
+                $options['include_fields'] = $default_fields;
+            }
         }
+
+        // It happens that some define it as:
+        // - either {"include_fields": "A,B,C"}
+        // - either {"include_fields": ["A", "B", "C"]}
+        // so we accept both.
+        if (!is_array($options['include_fields'])) {
+            $options['include_fields'] = explode(',', $options['include_fields']);
+        }
+
+        return $options;
     }
 
     abstract public function _fetch_by_options();
@@ -214,23 +250,11 @@ class BugzillaRESTQuery extends BugzillaBaseQuery {
         // Save the real options
         $saved_options = $this->options;
 
-        if(!isset($this->options['include_fields'])) {
-            $this->options['include_fields'] = array();
-        }
-
-        if(!is_array($this->options['include_fields'])) {
-            (array)$this->options['include_fields'];
-        }
-
         // Add any synthetic fields to the options
         if( !empty($this->synthetic_fields) ) {
             $this->options['include_fields'] =
                 @array_merge((array)$this->options['include_fields'],
                              $this->synthetic_fields);
-        }
-
-        if(!empty($this->options['include_fields'])) {
-            $this->options['include_fields'] = implode(",", $this->options['include_fields']);
         }
 
         // Add the requested query options to the request
@@ -299,14 +323,6 @@ class BugzillaJSONRPCQuery extends BugzillaBaseQuery {
 
         // Save the real options
         $saved_options = $this->options;
-
-        if(!isset($this->options['include_fields'])) {
-            $this->options['include_fields'] = array();
-        }
-
-        if(!is_array($this->options['include_fields'])) {
-            (array)$this->options['include_fields'];
-        }
 
         // Add any synthetic fields to the options
         if( !empty($this->synthetic_fields) ) {
