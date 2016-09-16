@@ -45,65 +45,34 @@ abstract class BugzillaBaseQuery {
     }
 
     public function id() {
-
-        // If we have already generated an id, return it
-        if( $this->id ) { return $this->id; }
-
-        return $this->_generate_id();
-    }
-
-    protected function _generate_id() {
-
-        // No need to generate if there are errors
-        if( !empty($this->error) ) { return; }
-
-        // FIXME: Should we strtolower() the keys?
-
-        // Sort it so the keys are always in the same order
-        ksort($this->options);
-
-        // Treat include_fields special because we don't want to query multiple
-        // times if the same fields were requested in a different order
-        $saved_include_fields = array();
-        if( isset($this->options['include_fields']) &&
-            !empty($this->options['include_fields']) ) {
-
-            $saved_include_fields = $this->options['include_fields'];
-
-            // This is important. If a user asks for a subset of the default
-            // fields and another user has the same query w/ a subset,
-            // it is silly to cache the queries separately. We know the 
-            // defaults will always be pulled, so anything asking for
-            // any combination of the defaults (or any combined subset) are
-            // esentially the same
-            $include_fields = $this->synthetic_fields;
-
-            $tmp = @explode(',', $this->options['include_fields']);
-            foreach( $tmp as $tmp_field ) {
-                $field = trim($tmp_field);
-                // Catch if the user specified the same field multiple times
-                if( !empty($field) && !in_array($field, $include_fields) ) {
-                    array_push($include_fields, $field);
-                }
-            }
-            sort($include_fields);
-            $this->options['include_fields'] = @implode(',', $include_fields);
+        if (!$this->id) {
+            $this->id = $this->_generate_id($this->options);
         }
-
-        // Get a string representation of the array
-        $id_string = serialize($this->options);
-
-        // Restore the include_fields to what the user wanted
-        if( $saved_include_fields ) {
-            $this->options['include_fields'] = $saved_include_fields;
-        }
-
-        // Hash it
-        $this->id = sha1($id_string);
 
         return $this->id;
     }
 
+    /**
+     *
+     * @param  Array  $options
+     * @return String|false
+     *
+     * FIXME: Should we strtolower() the keys?
+    */
+    protected function _generate_id($options) {
+
+        // No need to generate if there are errors
+        if( !empty($this->error) ) { return false; }
+
+        ksort($options);
+
+        $options['include_fields'] = $this->rebase_fields(
+            $options['include_fields'],
+            $this->synthetic_fields
+        );
+
+        return sha1(serialize($options));
+    }
 
     /**
      * A query to the remote API will always contain at least,
