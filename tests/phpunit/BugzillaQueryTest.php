@@ -71,4 +71,22 @@ class BugzillaQueryTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('Query options must be valid JSON.', $q->error);
     }
 
+    /**
+     * @dataProvider rebaseFieldsProvider
+    */
+    public function testRebaseFields($request, $synthetic, $expected)
+    {
+        $q = BugzillaQuery::create('bug', '{}', 'title');
+        $this->assertEquals($expected, $q->rebase_fields($request, $synthetic));
+    }
+
+    public function rebaseFieldsProvider()
+    {
+        return [
+            [ ['A', 'B', 'C'], ['A', 'B'], ['A', 'B', 'C'] ],
+            [ ['A'],           ['A', 'B'], ['A', 'B']      ],
+            [ ['C'],           ['B', 'A'], ['A', 'B', 'C'] ],
+        ];
+    }
+
 }

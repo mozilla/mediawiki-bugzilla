@@ -104,6 +104,45 @@ abstract class BugzillaBaseQuery {
         return $this->id;
     }
 
+
+    /**
+     * A query to the remote API will always contain at least,
+     * $synthetic_fields.
+     * So, whatever fields are requested, we just make sure:
+     * - all synthetic fields are included,
+     * - there's no duplicate,
+     * - fields are ordered,
+     * so that we reduce unnecessary queries to API.
+     *
+     * For instance, for synthetic (A, B) fields, actual queries on
+     * (A), (A,B), (B) will anyway lead to a query for (A, B).
+     *
+     * See BugzillaQueryTest::testRebaseFields().
+     *
+     * @param Array  $requested_fields
+     * @param Array  $default_fields
+     *
+     * @return Array
+    */
+    public function rebase_fields($requested_fields, $synthetic_fields)
+    {
+        $fields = array_unique(array_merge($synthetic_fields, $requested_fields));
+        sort($fields);
+
+        return $fields;
+    }
+
+    public function rebased_options()
+    {
+        $options = $this->options;
+        $options['include_fields'] = $this->rebase_fields(
+            $options['include_fields'],
+            $this->synthetic_fields
+        );
+
+        return $options;
+    }
+
     // Connect and fetch the data
     public function fetch() {
 
@@ -247,22 +286,8 @@ class BugzillaRESTQuery extends BugzillaBaseQuery {
         $request->setHeader('Content-Type', 'application/json');
         $request->setHeader('User-Agent', $this->user_agent());
 
-        // Save the real options
-        $saved_options = $this->options;
-
-        // Add any synthetic fields to the options
-        if( !empty($this->synthetic_fields) ) {
-            $this->options['include_fields'] =
-                @array_merge((array)$this->options['include_fields'],
-                             $this->synthetic_fields);
-        }
-
-        // Add the requested query options to the request
         $url = $request->getUrl();
-        $url->setQueryVariables($this->options);
-
-        // Retore the real options, removing anything we synthesized
-        $this->options = $saved_options;
+        $url->setQueryVariables($this->rebased_options());
 
         // This is basically straight from the HTTP/Request2 docs
         try {
@@ -319,21 +344,7 @@ class BugzillaJSONRPCQuery extends BugzillaBaseQuery {
 
     // Load data from the Bugzilla JSONRPC API
     public function _fetch_by_options() {
-        $method = 'Bug.search';
-
-        // Save the real options
-        $saved_options = $this->options;
-
-        // Add any synthetic fields to the options
-        if( !empty($this->synthetic_fields) ) {
-            $this->options['include_fields'] =
-                @array_merge((array)$this->options['include_fields'],
-                             $this->synthetic_fields);
-        }
-
-        $this->getJsonData($method, $this->options);
-        $this->options = $saved_options;
-        // Restore the real options, removing anything we synthesized
+        $this->getJsonData('Bug.search', $this->rebased_options());
     }
 
     protected function getJsonData($method, $params)
