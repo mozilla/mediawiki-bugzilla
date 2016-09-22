@@ -152,6 +152,11 @@ abstract class BugzillaBaseQuery {
         $cache->set($this->id(), base64_encode(serialize($this->data)));
     }
 
+    public function full_query_url()
+    {
+        global $wgBugzillaURL;
+        return $wgBugzillaURL . '/buglist.cgi?' . http_build_query($this->options);
+    }
 }
 
 class BugzillaRESTQuery extends BugzillaBaseQuery {

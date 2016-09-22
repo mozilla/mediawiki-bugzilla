@@ -79,6 +79,7 @@ class BugzillaBugListing extends BugzillaOutput {
 
         $this->response->bugs   = array();
         $this->response->fields = array();
+        $this->response->full_query_url = $this->query->full_query_url();
 
         // Set the bug data for the templates
         if(isset($this->query->data['bugs']) && count($this->query->data['bugs']) > 0) {

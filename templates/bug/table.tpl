@@ -3,6 +3,9 @@
     $extra_class = ($wgBugzillaJqueryTable) ? 'jquery ui-helper-reset' : '';
 ?>
 <table class="wikitable sortable bugzilla <?php echo $extra_class ?>">
+    <summary>
+      <?php echo '<a href="', $response->full_query_url, '">Full Query</a>'; ?>
+    </summary>
     <thead>
         <tr>
         <?php
