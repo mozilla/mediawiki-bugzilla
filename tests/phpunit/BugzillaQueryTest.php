@@ -28,6 +28,11 @@ class BugzillaQueryTest extends PHPUnit_Framework_TestCase
                 ['include_fields' => []]
             ],
             [
+                " { \n } ",
+                ['default'],
+                ['include_fields' => ['default']]
+            ],
+            [
                 '{"other":"options"}',
                 $default_includes,
                 [
@@ -60,7 +65,7 @@ class BugzillaQueryTest extends PHPUnit_Framework_TestCase
                 'invalid JSON',
                 $default_includes,
                 null
-            ]
+            ],
         ];
     }
 
