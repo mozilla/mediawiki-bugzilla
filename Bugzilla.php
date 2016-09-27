@@ -26,7 +26,7 @@ $wgExtensionCredits['other'][] = array(
     'url'         => 'https://github.com/LegNeato/mediawiki-bugzilla',
     'descriptionmsg' => 'bugzilla-desc',
     'license-name' => 'MPL2',
-    'version'     => $wgBugzillaExtVersion;
+    'version'     => $wgBugzillaExtVersion,
 );
 
 $wgResourceModules['ext.Bugzilla'] = array(
