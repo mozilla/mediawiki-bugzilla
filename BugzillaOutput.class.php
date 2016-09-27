@@ -85,28 +85,7 @@ class BugzillaBugListing extends BugzillaOutput {
             $this->response->bugs = $this->query->data['bugs'];
         }
 
-        // Set the field data for the templates
-        if( isset($this->query->options['include_fields']) &&
-            !empty($this->query->options['include_fields']) ) {
-            // User specified some fields
-            if (!is_array($this->query->options['include_fields'])) {
-                $tmp = @explode(',', $this->query->options['include_fields']);
-            } else {
-                $tmp = &$this->query->options['include_fields'];
-            }
-            foreach( $tmp as $tmp_field ) {
-                $field = trim($tmp_field);
-                // Catch if the user specified the same field multiple times
-                if( !empty($field) &&
-                    !in_array($field, $this->response->fields) ) {
-                    array_push($this->response->fields, $field);
-                }
-            }
-        }else {
-            // If the user didn't specify any fields in the query config use
-            // default fields
-            $this->response->fields = $wgBugzillaDefaultFields;
-        }
+        $this->response->fields = $this->query->options['include_fields'];
     }
 
 }
