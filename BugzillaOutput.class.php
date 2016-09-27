@@ -68,7 +68,19 @@ abstract class BugzillaOutput {
     }
 
     abstract protected function setup_template_data();
+}
 
+class BugzillaNumber extends BugzillaOutput {
+    function setup_template_data() {
+    }
+
+    function _render_error($error) {
+        return '<span style="color: red;">Bugzilla: '.htmlspecialchars($error).'</span>';
+    }
+
+    function render() {
+        return '<span>'.count($this->query->data['bugs']).'</span>';
+    }
 }
 
 class BugzillaBugListing extends BugzillaOutput {

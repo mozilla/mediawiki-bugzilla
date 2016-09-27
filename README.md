@@ -53,7 +53,7 @@ Valid bugzilla tag options are:
 
 * type: ``"bug"`` or ``"count"`` (defaults to bug)
 * For type bug:
-    * display: ``"table"`` or ``"list"`` (defaults to table)
+    * display: ``"table"`` or ``"list"`` or `"count"` (defaults to table)
 * For type count:
     * display: ``"bar"`` or ``"pie"``
     * size: ``"small"``, ``medium"`` or ``"large"`` (defaults to large)
