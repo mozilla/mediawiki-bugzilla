@@ -136,6 +136,14 @@ class BugzillaTable extends BugzillaBugListing {
 
 abstract class BugzillaGraph extends BugzillaOutput {
 
+    public function __construct($config, $options, $title = '') {
+        parent::__construct($config, $options, $title);
+
+        if (!extension_loaded('gd') && !extension_loaded('gd2')) {
+            $this->error = 'GD extension must be loaded.';
+        }
+    }
+
     protected function _get_size() {
 
         switch($this->config['size']) {
