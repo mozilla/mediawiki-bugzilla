@@ -166,6 +166,7 @@ function BugzillaRender($input, array $args, Parser $parser, $frame=null ) {
     $bz = Bugzilla::create($args, $input, $parser->getTitle());
 
     // Show the desired output (or an error if there was one)
+    $bz->fetch();
     return $bz->render();
 }
 

@@ -22,6 +22,8 @@ class BugzillaQuery {
 abstract class BugzillaBaseQuery {
 
     public function __construct($type, $options, $title) {
+        global $wgBugzillaDefaultFields;
+
         $this->type             = $type;
         $this->title            = $title;
         $this->url              = FALSE;
@@ -30,7 +32,7 @@ abstract class BugzillaBaseQuery {
         $this->data             = array();
         $this->synthetic_fields = array();
         $this->cache            = FALSE;
-        $this->_set_options($options);
+        $this->options          = $this->prepare_options($options, $wgBugzillaDefaultFields);
     }
 
     protected function _getCache()
@@ -43,72 +45,77 @@ abstract class BugzillaBaseQuery {
     }
 
     public function id() {
-
-        // If we have already generated an id, return it
-        if( $this->id ) { return $this->id; }
-
-        return $this->_generate_id();
-    }
-
-    protected function _generate_id() {
-
-        // No need to generate if there are errors
-        if( !empty($this->error) ) { return; }
-
-        // FIXME: Should we strtolower() the keys?
-
-        // Sort it so the keys are always in the same order
-        ksort($this->options);
-
-        // Treat include_fields special because we don't want to query multiple
-        // times if the same fields were requested in a different order
-        $saved_include_fields = array();
-        if( isset($this->options['include_fields']) &&
-            !empty($this->options['include_fields']) ) {
-
-            $saved_include_fields = $this->options['include_fields'];
-
-            // This is important. If a user asks for a subset of the default
-            // fields and another user has the same query w/ a subset,
-            // it is silly to cache the queries separately. We know the 
-            // defaults will always be pulled, so anything asking for
-            // any combination of the defaults (or any combined subset) are
-            // esentially the same
-            $include_fields = $this->synthetic_fields;
-
-            $tmp = @explode(',', $this->options['include_fields']);
-            foreach( $tmp as $tmp_field ) {
-                $field = trim($tmp_field);
-                // Catch if the user specified the same field multiple times
-                if( !empty($field) && !in_array($field, $include_fields) ) {
-                    array_push($include_fields, $field);
-                }
-            }
-            sort($include_fields);
-            $this->options['include_fields'] = @implode(',', $include_fields);
+        if (!$this->id) {
+            $this->id = $this->_generate_id($this->options);
         }
-
-        // Get a string representation of the array
-        $id_string = serialize($this->options);
-
-        // Restore the include_fields to what the user wanted
-        if( $saved_include_fields ) {
-            $this->options['include_fields'] = $saved_include_fields;
-        }
-
-        // Hash it
-        $this->id = sha1($id_string);
 
         return $this->id;
+    }
+
+    /**
+     *
+     * @param  Array  $options
+     * @return String|false
+     *
+     * FIXME: Should we strtolower() the keys?
+    */
+    protected function _generate_id($options) {
+
+        // No need to generate if there are errors
+        if( !empty($this->error) ) { return false; }
+
+        ksort($options);
+
+        $options['include_fields'] = $this->rebase_fields(
+            $options['include_fields'],
+            $this->synthetic_fields
+        );
+
+        return sha1(serialize($options));
+    }
+
+    /**
+     * A query to the remote API will always contain at least,
+     * $synthetic_fields.
+     * So, whatever fields are requested, we just make sure:
+     * - all synthetic fields are included,
+     * - there's no duplicate,
+     * - fields are ordered,
+     * so that we reduce unnecessary queries to API.
+     *
+     * For instance, for synthetic (A, B) fields, actual queries on
+     * (A), (A,B), (B) will anyway lead to a query for (A, B).
+     *
+     * See BugzillaQueryTest::testRebaseFields().
+     *
+     * @param Array  $requested_fields
+     * @param Array  $default_fields
+     *
+     * @return Array
+    */
+    public function rebase_fields($requested_fields, $synthetic_fields)
+    {
+        $fields = array_unique(array_merge($synthetic_fields, $requested_fields));
+        sort($fields);
+
+        return $fields;
+    }
+
+    public function rebased_options()
+    {
+        $options = $this->options;
+        $options['include_fields'] = $this->rebase_fields(
+            $options['include_fields'],
+            $this->synthetic_fields
+        );
+
+        return $options;
     }
 
     // Connect and fetch the data
     public function fetch() {
 
         global $wgBugzillaCacheMins;
-
-        // We need *some* options to do anything
-        if( !isset($this->options) || empty($this->options) ) { return; }
 
         // Don't do anything if we already had an error
         if( $this->error ) { return; }
@@ -135,13 +142,50 @@ abstract class BugzillaBaseQuery {
         }
     }
 
-    protected function _set_options($query_options_raw) {
-        // Make sure query options are valid JSON
-        $this->options = json_decode($query_options_raw, true);
-        if( !$query_options_raw || !$this->options ) {
-            $this->error = 'Query options must be valid json';
-            return;
+    /**
+     * Parse/prepare query options
+     * and set appropriate, working defaults.
+     *
+     * See BugzillaQueryTest::testPrepareOptions().
+     *
+     * @param String $query_options_raw
+     *
+     * @return array prepared options array
+    */
+    public function prepare_options($query_options_raw, $default_fields = array()) {
+
+        $options = array();
+        $query_options_raw = trim($query_options_raw);
+
+        // if no query is provided, at least set a working default
+        // so that first experience is nicer than an error message.
+        if (!$query_options_raw) {
+            $options['include_fields'] = $default_fields;
+
+        } else {
+            $options = json_decode($query_options_raw, true);
+
+            if ($options === null) {
+                $this->error = 'Query options must be valid JSON.';
+                return $options;
+            }
+
+            if (!isset($options['include_fields'])
+                || empty($options['include_fields'])) {
+
+                $options['include_fields'] = $default_fields;
+            }
         }
+
+        // It happens that some define it as:
+        // - either {"include_fields": "A,B,C"}
+        // - either {"include_fields": ["A", "B", "C"]}
+        // so we accept both.
+        if (!is_array($options['include_fields'])) {
+            $options['include_fields'] = explode(',', $options['include_fields']);
+        }
+
+        return $options;
     }
 
     abstract public function _fetch_by_options();
@@ -178,8 +222,6 @@ class BugzillaRESTQuery extends BugzillaBaseQuery {
                 // Even if the user didn't specify, we need these
                 $this->synthetic_fields = $wgBugzillaDefaultFields;
         }
-
-        $this->fetch();
     }
 
     public function user_agent() {
@@ -213,34 +255,8 @@ class BugzillaRESTQuery extends BugzillaBaseQuery {
         $request->setHeader('Content-Type', 'application/json');
         $request->setHeader('User-Agent', $this->user_agent());
 
-        // Save the real options
-        $saved_options = $this->options;
-
-        if(!isset($this->options['include_fields'])) {
-            $this->options['include_fields'] = array();
-        }
-
-        if(!is_array($this->options['include_fields'])) {
-            (array)$this->options['include_fields'];
-        }
-
-        // Add any synthetic fields to the options
-        if( !empty($this->synthetic_fields) ) {
-            $this->options['include_fields'] =
-                @array_merge((array)$this->options['include_fields'],
-                             $this->synthetic_fields);
-        }
-
-        if(!empty($this->options['include_fields'])) {
-            $this->options['include_fields'] = implode(",", $this->options['include_fields']);
-        }
-
-        // Add the requested query options to the request
         $url = $request->getUrl();
-        $url->setQueryVariables($this->options);
-
-        // Retore the real options, removing anything we synthesized
-        $this->options = $saved_options;
+        $url->setQueryVariables($this->rebased_options());
 
         // This is basically straight from the HTTP/Request2 docs
         try {
@@ -293,35 +309,11 @@ class BugzillaJSONRPCQuery extends BugzillaBaseQuery {
                 $this->synthetic_fields = $wgBugzillaDefaultFields;
                 break;
         }
-
-        $this->fetch();
     }
 
     // Load data from the Bugzilla JSONRPC API
     public function _fetch_by_options() {
-        $method = 'Bug.search';
-
-        // Save the real options
-        $saved_options = $this->options;
-
-        if(!isset($this->options['include_fields'])) {
-            $this->options['include_fields'] = array();
-        }
-
-        if(!is_array($this->options['include_fields'])) {
-            (array)$this->options['include_fields'];
-        }
-
-        // Add any synthetic fields to the options
-        if( !empty($this->synthetic_fields) ) {
-            $this->options['include_fields'] =
-                @array_merge((array)$this->options['include_fields'],
-                             $this->synthetic_fields);
-        }
-
-        $this->getJsonData($method, $this->options);
-        $this->options = $saved_options;
-        // Restore the real options, removing anything we synthesized
+        $this->getJsonData('Bug.search', $this->rebased_options());
     }
 
     protected function getJsonData($method, $params)
@@ -360,8 +352,6 @@ class BugzillaXMLRPCQuery extends BugzillaBaseQuery {
         parent::__construct($type, $options, $title);
 
         $this->url = $wgBugzillaURL . '/xmlrpc.cgi';
-
-        $this->fetch();
     }
 
     // Load data from the Bugzilla XMLRPC API

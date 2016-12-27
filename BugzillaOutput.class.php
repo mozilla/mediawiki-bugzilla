@@ -11,13 +11,7 @@ abstract class BugzillaOutput {
         $this->error    = false;
         $this->response = new stdClass();
 
-        // Make our query and possibly fetch the data
         $this->query = BugzillaQuery::create($config['type'], $options, $title);
-
-        // Bubble up any query errors
-        if( $this->query->error ) {
-            $this->error = $this->query->error;
-        }
     }
 
     protected function _render_error($error) {
@@ -27,7 +21,15 @@ abstract class BugzillaOutput {
         return ob_get_clean();
     }
 
+    public function fetch() {
+        $this->query->fetch();
+    }
+
     public function render() {
+        if( $this->query->error ) {
+            return $this->_render_error($this->query->error);
+        }
+
         // Get our template path
         $this->template = dirname(__FILE__) . '/templates/' .
                           $this->config['type'] . '/' .
@@ -42,8 +44,6 @@ abstract class BugzillaOutput {
                            ' combination';
         }
 
-        // If there are any errors (either from the template path above or
-        // elsewhere) output them
         if( $this->error ) {
             return $this->_render_error($this->error);
         }
@@ -85,28 +85,7 @@ class BugzillaBugListing extends BugzillaOutput {
             $this->response->bugs = $this->query->data['bugs'];
         }
 
-        // Set the field data for the templates
-        if( isset($this->query->options['include_fields']) &&
-            !empty($this->query->options['include_fields']) ) {
-            // User specified some fields
-            if (!is_array($this->query->options['include_fields'])) {
-                $tmp = @explode(',', $this->query->options['include_fields']);
-            } else {
-                $tmp = &$this->query->options['include_fields'];
-            }
-            foreach( $tmp as $tmp_field ) {
-                $field = trim($tmp_field);
-                // Catch if the user specified the same field multiple times
-                if( !empty($field) &&
-                    !in_array($field, $this->response->fields) ) {
-                    array_push($this->response->fields, $field);
-                }
-            }
-        }else {
-            // If the user didn't specify any fields in the query config use
-            // default fields
-            $this->response->fields = $wgBugzillaDefaultFields;
-        }
+        $this->response->fields = $this->query->options['include_fields'];
     }
 
 }
