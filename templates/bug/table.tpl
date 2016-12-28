@@ -9,6 +9,9 @@
     if ($all > 0) {
 ?>
 <table class="wikitable sortable bugzilla <?php echo $extra_class ?>">
+    <summary>
+      <?php echo '<a href="', $response->full_query_url, '">Full Query</a>'; ?>
+    </summary>
     <thead>
         <tr>
         <?php
