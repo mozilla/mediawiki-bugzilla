@@ -20,7 +20,7 @@ class Bugzilla {
         $theconfig = array(
             'type'    => 'bug',
             'display' => 'table',
-            'stats' => 'show',
+            'stats'   => 'show',
         );
 
         // Overlay user's desired configuration
@@ -28,35 +28,22 @@ class Bugzilla {
             $theconfig[$key] = $value;
         }
 
-        // Generate the proper object
-        switch( $theconfig['display'] ) {
-            case 'list':
-                $b = new BugzillaList($theconfig, $opts, $title);
-                break;
-
-            case 'bar':
-                $b = new BugzillaBarGraph($theconfig, $opts, $title);
-                break;
-
-            case 'vbar':
-                $b = new BugzillaVerticalBarGraph($theconfig, $opts, $title);
-                 break;
-
-            case 'pie':
-                $b = new BugzillaPieGraph($theconfig, $opts, $title);
-                break;
-
-            case 'inline':
-                $b = new BugzillaInline($theconfig, $opts, $title);
-                break;
-
-            case 'table':
-            default:
-                $b = new BugzillaTable($theconfig, $opts, $title);
+        $classes = [
+            'list'   => 'List',
+            'number' => 'Number',
+            'bar'    => 'BarGraph',
+            'vbar'   => 'VerticalBarGraph',
+            'pie'    => 'PieGraph',
+            'inline' => 'Inline',
+            'table'  => 'Table',
+        ];
+        if (!array_key_exists($theconfig['display'], $classes)) {
+            $theconfig['display'] = 'table';
         }
 
-        return $b;
+        $class = 'Bugzilla'.$classes[$theconfig['display']];
 
+        return new $class($theconfig, $opts, $title);
     }
 
     /**
@@ -93,4 +80,3 @@ class Bugzilla {
         return new $object();
     }
 }
-

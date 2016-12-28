@@ -68,7 +68,19 @@ abstract class BugzillaOutput {
     }
 
     abstract protected function setup_template_data();
+}
 
+class BugzillaNumber extends BugzillaOutput {
+    function setup_template_data() {
+    }
+
+    function _render_error($error) {
+        return '<span style="color: red;">Bugzilla: '.htmlspecialchars($error).'</span>';
+    }
+
+    function render() {
+        return '<span>'.count($this->query->data['bugs']).'</span>';
+    }
 }
 
 class BugzillaBugListing extends BugzillaOutput {
@@ -103,6 +115,14 @@ class BugzillaTable extends BugzillaBugListing {
 /* Graphing */
 
 abstract class BugzillaGraph extends BugzillaOutput {
+
+    public function __construct($config, $options, $title = '') {
+        parent::__construct($config, $options, $title);
+
+        if (!extension_loaded('gd') && !extension_loaded('gd2')) {
+            $this->error = 'GD extension must be loaded.';
+        }
+    }
 
     protected function _get_size() {
 
