@@ -3,8 +3,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-require_once 'HTTP/Request2.php';
-
 // Factory class
 class BugzillaQuery {
     public static function create($type, $options, $title) {
@@ -241,40 +239,32 @@ class BugzillaRESTQuery extends BugzillaBaseQuery {
     // Load data from the Bugzilla REST API
     public function _fetch_by_options() {
 
-        // Set up our HTTP request
-        $options_array = array();
-
-        $options_array = array(Net_Url2::OPTION_USE_BRACKETS => false);
-        $net_url2 = new Net_Url2($this->url, $options_array);
-        $request = new HTTP_Request2($net_url2,
-            HTTP_Request2::METHOD_GET,
-            array(
-                'follow_redirects' => true,
-                // TODO: Not sure if I should do this
-                'ssl_verify_peer' => false
-            )
-        );
+        // Add the requested query options to the request
+        $ua = MWHttpRequest::factory( $this->url . '?'
+                                           . http_build_query( $this->options ),
+                                           [
+                                               'method' => 'GET',
+                                               'follow_redirects' => true,
+                                               // TODO: Not sure if I should do this
+                                               'ssl_verify_peer' => false
+                                           ], __METHOD__ );
 
         // The REST API requires these
-        $request->setHeader('Accept', 'application/json');
-        $request->setHeader('Content-Type', 'application/json');
-        $request->setHeader('User-Agent', $this->user_agent());
-
-        $url = $request->getUrl();
-        $url->setQueryVariables($this->rebased_options());
+        $ua->setHeader('Accept', 'application/json');
+        $ua->setHeader('Content-Type', 'application/json');
 
         // This is basically straight from the HTTP/Request2 docs
         try {
-            $response = $request->send();
-            if (200 == $response->getStatus()) {
-                $this->data = json_decode($response->getBody(), TRUE);
+            $response = $ua->execute();
+            if (200 == $ua->getStatus()) {
+                $this->data = json_decode($ua->getContent(), TRUE);
             } else {
                 $this->error = 'Server returned unexpected HTTP status: ' .
-                               $response->getStatus() . ' ' .
-                               $response->getReasonPhrase();
+                               $ua->getStatus() . ' ' .
+                               $ua->getReasonPhrase();
                 return;
             }
-        } catch (HTTP_Request2_Exception $e) {
+        } catch (MWException $e) {
             $this->error = $e->getMessage();
             return;
         }
@@ -382,23 +372,22 @@ class BugzillaXMLRPCQuery extends BugzillaBaseQuery {
 </methodCall>
 X;
 
-        $request = new HTTP_Request2($this->url,
-            HTTP_Request2::METHOD_POST,
-            array(
-                'follow_redirects' => true,
-               'ssl_verify_peer' => false
-            )
-        );
+        $ua = MWHttpRequest::factory( $this->url, [
+            'method' => 'POST',
+            'follow_redirects' => true,
+            // TODO: Not sure if I should do this
+            'ssl_verify_peer' => false
+        ], __METHOD__ );
 
-        $request->setHeader('Accept', 'text/xml');
-        $request->setHeader('Content-Type', 'text/xml;charset=utf-8');
-        $request->setBody($xml);
+        $ua->setHeader('Accept', 'text/xml');
+        $ua->setHeader('Content-Type', 'text/xml;charset=utf-8');
+        $ua->setBody($xml);
 
         try {
-            $response = $request->send();
+            $response = $ua->execute();
 
-            if (200 == $response->getStatus()) {
-                $x = simplexml_load_string($response->getBody());
+            if (200 == $ua->getStatus()) {
+                $x = simplexml_load_string($ua->getContent());
                 $this->data['bugs'] = array();
 
                 // FIXME there must be a better way
@@ -416,8 +405,8 @@ X;
                 }
             } else {
                 $this->error = 'Server returned unexpected HTTP status: ' .
-                               $response->getStatus() . ' ' .
-                               $response->getReasonPhrase();
+                               $ua->getStatus() . ' ' .
+                               $ua->getReasonPhrase();
                 return;
             }
         } catch (HTTP_Request2_Exception $e) {
