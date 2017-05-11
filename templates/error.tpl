@@ -2,6 +2,6 @@
 <div class="bugzilla errorbox">
     <h2>Bugzilla query error</h2>
     <p>
-        <?php echo $error; ?>
+        <?php echo implode(", ", $error); ?>
     </p>
 </div>
