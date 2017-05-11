@@ -126,18 +126,17 @@ abstract class BugzillaGraph extends BugzillaOutput {
 
     protected function _get_size() {
 
-        switch($this->config['size']) {
+        if ( isset( $this->config['size'] ) ) {
 
-            // whitelist
+            switch($this->config['size']) {
+                // whitelist
             case 'small':
             case 'medium':
             case 'large':
                 return $this->config['size'];
-                break;
-
-            default:
-                return 'large';
+            }
         }
+        return 'large';
     }
 
     public function setup_template_data() {
