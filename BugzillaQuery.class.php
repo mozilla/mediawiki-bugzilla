@@ -101,6 +101,15 @@ abstract class BugzillaBaseQuery {
         return $options;
     }
 
+	protected function getUA( $method, $url, $caller = __METHOD__ ) {
+		global $wgBugzillaQueryDefaults;
+		return MWHttpRequest::factory( $url,
+									   array_merge( $wgBugzillaQueryDefaults, [
+										   'method' => $method,
+										   'follow_redirects' => true,
+									   ] ), $caller );
+	}
+
     /**
      * Wrap around sub-classes actual fetch action, with caching.
      * Uses MediaWiki main cache strategy.
@@ -109,6 +118,16 @@ abstract class BugzillaBaseQuery {
      *
      * @return string
     */
+	protected function getUA( $method, $url, $caller = __METHOD__ ) {
+		global $wgBugzillaQueryDefaults;
+		return MWHttpRequest::factory( $url,
+									   array_merge( $wgBugzillaQueryDefaults, [
+										   'method' => $method,
+										   'follow_redirects' => true,
+									   ] ), $caller );
+	}
+
+    // Connect and fetch the data
     public function fetch() {
 
         global $wgMainCacheType;
@@ -233,14 +252,8 @@ class BugzillaRESTQuery extends BugzillaBaseQuery {
     public function _fetch_by_options() {
 
         // Add the requested query options to the request
-        $ua = MWHttpRequest::factory( $this->url . '?'
-                                           . http_build_query( $this->options ),
-                                           [
-                                               'method' => 'GET',
-                                               'follow_redirects' => true,
-                                               // TODO: Not sure if I should do this
-                                               'ssl_verify_peer' => false
-                                           ], __METHOD__ );
+        $ua = $this->getUA( 'GET', $this->url . '?' . http_build_query( $this->options ),
+							__METHOD__ );
 
         // The REST API requires these
         $ua->setHeader('Accept', 'application/json');
@@ -306,18 +319,14 @@ class BugzillaJSONRPCQuery extends BugzillaBaseQuery {
         $query = json_encode($params, true);
         $url = $this->url."?method=$method&params=[".urlencode($query)."]";
 
-        $req = MWHttpRequest::factory($url, array(
-                    'sslVerifyHost' => false,
-                    'sslVerifyCert' => false
-                  )
-              );
-        $status = $req->execute();
+        $ua = $this->getUA( 'GET', $url, __METHOD__ );
+        $status = $ua->execute();
 
         if(!$status->isOK()) {
             $this->error = $res->getMessage();
             return false;
         } else {
-            $this->rawData = $req->getContent();
+            $this->rawData = $ua->getContent();
             $params = json_decode($this->rawData, true);
             $this->data = $params['result'];
             return true;
@@ -362,12 +371,7 @@ class BugzillaXMLRPCQuery extends BugzillaBaseQuery {
 </methodCall>
 X;
 
-        $ua = MWHttpRequest::factory( $this->url, [
-            'method' => 'POST',
-            'follow_redirects' => true,
-            // TODO: Not sure if I should do this
-            'ssl_verify_peer' => false
-        ], __METHOD__ );
+        $ua = $this->getUA( 'POST', $this->url, __METHOD__ );
 
         $ua->setHeader('Accept', 'text/xml');
         $ua->setHeader('Content-Type', 'text/xml;charset=utf-8');

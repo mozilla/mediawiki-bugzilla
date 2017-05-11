@@ -19,6 +19,7 @@
  */
 
 $wgBugzillaExtVersion = '1.0.0';
+$wgBugzillaQueryDefaults = [ 'ssl_verify_peer' => false ];
 
 $wgExtensionCredits['other'][] = array(
     'name'        => 'Bugzilla',
