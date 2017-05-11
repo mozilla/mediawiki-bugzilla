@@ -9,6 +9,7 @@ __Please note that there are still big outstanding bugs!__
 Requirements
 ================================
 
+* MediaWiki 1.17 or above.
 * For charting, requires <a href="http://libgd.bitbucket.org/">gd</a>
 
 Installation
@@ -40,7 +41,7 @@ You use this extension in this way:
 
 By default, it will output a colored table:
 
-![Example output](http://i.imgur.com/IM6xd.png"Example output")
+![Example output](http://i.imgur.com/IM6xd.png)
 
 Note that the wiki tag name defaults to "bugzilla" but is 
 configurable by the administrator.
