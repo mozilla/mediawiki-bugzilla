@@ -195,9 +195,13 @@ class BugzillaPieGraph extends BugzillaGraph {
         $startY = ( isset($startY) ) ? $startY : $radius;
 
         $pData = new pData();
-        $pData->addPoints($this->query->data['data'], 'Counts');
+        if ( !empty( $this->query->data['data'] ) ) {
+            $pData->addPoints($this->query->data['data'], 'Counts');
+        }
         $pData->setAxisName(0, 'Bugs');
-        $pData->addPoints($this->query->data['x_labels'], "Bugs");
+        if ( !empty( $this->query->data['x_labels'] ) ) {
+            $pData->addPoints($this->query->data['x_labels'], "Bugs");
+        }
         $pData->setSerieDescription("Bugs", "Bugs");
         $pData->setAbscissa("Bugs");
 

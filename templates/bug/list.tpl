@@ -25,7 +25,10 @@
                 }
 
                 // Print out the data
-                $data = $bug[$field];
+                $data = null;
+                if ( isset( $bug[$field] ) ) {
+                    $data = $bug[$field];
+                }
                 require($subtemplate);
 
                 echo "</span>";
