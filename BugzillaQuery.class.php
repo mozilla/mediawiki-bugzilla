@@ -251,8 +251,7 @@ class BugzillaRESTQuery extends BugzillaBaseQuery {
             if (200 == $ua->getStatus()) {
                 $this->data = json_decode($ua->getContent(), TRUE);
             } else {
-                $errors = $response->getStatusValue()->getErrors();
-                $this->error = $errors[0];
+                $this->error = $response->getWikiText();
                 return;
             }
         } catch (MWException $e) {
@@ -395,8 +394,7 @@ X;
                     $this->data['bugs'][] = $bug;
                 }
             } else {
-                $errors = $response->getStatusValue()->getErrors();
-                $this->error = $errors[0];
+                $this->error = $response->getWikiText();
                 return;
             }
         } catch (MWException $e) {
