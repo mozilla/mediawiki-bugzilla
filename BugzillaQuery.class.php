@@ -29,17 +29,8 @@ abstract class BugzillaBaseQuery {
         $this->error            = FALSE;
         $this->data             = array();
         $this->synthetic_fields = array();
-        $this->cache            = FALSE;
+        $this->cached           = FALSE;
         $this->options          = $this->prepare_options($options, $wgBugzillaDefaultFields);
-    }
-
-    protected function _getCache()
-    {
-        if (!$this->cache) {
-            $this->cache = Bugzilla::getCache();
-        }
-
-        return $this->cache;
     }
 
     public function id() {
@@ -110,33 +101,35 @@ abstract class BugzillaBaseQuery {
         return $options;
     }
 
-    // Connect and fetch the data
+    /**
+     * Wrap around sub-classes actual fetch action, with caching.
+     * Uses MediaWiki main cache strategy.
+     *
+     * TODO: use ObjectCache::getLocalServerInstance() once MW >= 1.27
+     *
+     * @return string
+    */
     public function fetch() {
 
-        global $wgBugzillaCacheMins;
+        global $wgMainCacheType;
+        global $wgBugzillaCacheTimeOut;
 
-        // Don't do anything if we already had an error
-        if( $this->error ) { return; }
+        if ($this->error) { return; }
 
-        $cache = $this->_getCache();
-        $row = $cache->get($this->id());
+        $key = implode(':', ['mediawiki', 'bugzilla', 'bugs', sha1(serialize($this->id()))]);
+        $cache = wfGetCache($wgMainCacheType);
+        $row = $cache->get($key);
 
-        // If the cache entry is older than this we need to invalidate it
-        $expiry = strtotime("-$wgBugzillaCacheMins minutes");
+        if ($row === false) {
+                $this->cached = false;
 
-        if( !$row ) {
-            // No cache entry
-            $this->cached = false;
+                $this->_fetch_by_options();
+                $cache->set($key, base64_encode(serialize($this->data)), $wgBugzillaCacheTimeOut * 60);
 
-            // Does the Bugzilla query in the background and updates the cache
-            $this->_fetch_by_options();
-            $this->_update_cache();
-
-            return $this->data;
+                return $this->data;
         } else {
-            // Cache is good, use it
-            $this->cached = true;
-            $this->data = unserialize(base64_decode($row));
+                $this->cached = true;
+                return $this->data = unserialize(base64_decode($row));
         }
     }
 

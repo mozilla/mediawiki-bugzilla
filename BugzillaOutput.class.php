@@ -3,7 +3,6 @@
 abstract class BugzillaOutput {
 
     public $response;
-    public $cache;
 
     public function __construct($config, $options, $title='') {
         $this->title    = $title;
@@ -56,15 +55,6 @@ abstract class BugzillaOutput {
         $results = ob_get_clean();
         return $results;
 
-    }
-
-    protected function _getCache()
-    {
-        if (!$this->cache) {
-            $this->cache = Bugzilla::getCache();
-        }
-
-        return $this->cache;
     }
 
     abstract protected function setup_template_data();
@@ -145,15 +135,22 @@ abstract class BugzillaGraph extends BugzillaOutput {
         include_once 'pchart/class/pData.class.php';
 
         global $wgBugzillaChartUrl;
+        global $wgBugzillaCacheTimeOut;
+        global $wgMainCacheType;
 
-        $key = md5($this->query->id . $this->_get_size() . get_class($this));
-        $cache = $this->_getCache();
-        if($result = $cache->get($key)) {
-            $image = $result;
-            $this->response->image = $wgBugzillaChartUrl . '/' . $image;
-        } else {
-            $this->response->image = $wgBugzillaChartUrl . '/' . $this->generate_chart($key) . '.png';
+        $fileName = sha1(serialize([$this->query->id, $this->_get_size(), get_class($this)]));
+        $key = implode(':', ['mediawiki', 'bugzilla', 'chart', $fileName]);
+        $cache = wfGetCache($wgMainCacheType);
+
+        // We use the cache only to invalidate/recompute the charts:
+        // the key is its own value. Only the TTL is useful here.
+        if ($cache->get($key) === false) {
+            if ($this->generate_chart($fileName)) {
+                $cache->set($key, $fileName);
+            }
         }
+
+        $this->response->image = $wgBugzillaChartUrl.'/'.$fileName.'.png';
     }
 
 }
@@ -226,8 +223,7 @@ class BugzillaPieGraph extends BugzillaGraph {
         $pPieChart->drawPieLegend(2*$radius + 2*$padding, $padding, array("Alpha"=>20));
 
         $pImage->render($wgBugzillaChartStorage . '/' . $chart_name . '.png');
-        $cache = $this->_getCache();
-        $cache->set($chart_name, $chart_name . '.png');
+
         return $chart_name;
     }
 }
@@ -251,10 +247,8 @@ class BugzillaBarGraph extends BugzillaGraph {
 
         $pImage->drawBarChart();
         $pImage->render($wgBugzillaChartStorage . '/' . $chart_name . '.png');
-        $cache = $this->_getCache();
-        $cache->set($chart_name, $chart_name . '.png');
+
         return $chart_name;
     }
 
 }
-

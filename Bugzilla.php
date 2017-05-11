@@ -51,32 +51,14 @@ $wgExtensionMessagesFiles['Bugzilla'] =  "$cwd/Bugzilla.i18n.php";
 $wgAutoloadClasses['Bugzilla']           = $cwd . '/Bugzilla.class.php';
 $wgAutoloadClasses['BugzillaQuery']      = $cwd . '/BugzillaQuery.class.php';
 $wgAutoloadClasses['BugzillaOutput']     = $cwd . '/BugzillaOutput.class.php';
-$wgAutoloadClasses['BugzillaCacheI']     = $cwd . '/cache/BugzillaCacheI.class.php';
-$wgAutoloadClasses['BugzillaCacheDummy'] = $cwd . '/cache/BugzillaCacheDummy.class.php';
-$wgAutoloadClasses['BugzillaCacheApc']   = $cwd . '/cache/BugzillaCacheApc.class.php';
-$wgAutoloadClasses['BugzillaCacheMemcache'] = $cwd . '/cache/BugzillaCacheMemcache.class.php';
-$wgAutoloadClasses['BugzillaCacheSql']   = $cwd . '/cache/BugzillaCacheSql.class.php';
 
 /**
  * These hooks are used by mediawiki to properly display the plugin information
  * and properly interpret the tags used.
  */
 
-$wgHooks['LoadExtensionSchemaUpdates'][] = 'BugzillaCreateCache';
 $wgHooks['BeforePageDisplay'][]          = 'BugzillaIncludeHTML';
 $wgHooks['ParserFirstCallInit'][]        = 'BugzillaParserInit';
-
-// Schema updates for the database cache
-function BugzillaCreateCache($updater) {
-
-    global $wgBugzillaCacheType;
-
-    $class = Bugzilla::getCacheClass($wgBugzillaCacheType);
-    $class::setup($updater);
-
-    // Let the other hooks keep processing
-    return true;
-}
 
 // Add content to page HTML
 function BugzillaIncludeHTML( &$out, &$sk ) {
@@ -185,10 +167,11 @@ $wgBugzillaMethod      = 'REST'; // XML-RPC and JSON-RPC may be supported later
 
 // Cache
 // NOTE: $wgBugzillaUseCache has been removed. Use $wgBugzillaCacheType below only:
-// - any valid value for using it
-// - equivalent to previous $wgBugzillaUseCache = false; is $wgBugzillaCacheType = 'dummy';
-$wgBugzillaCacheType = 'mysql'; // valid values are: memcache, apc, mysql, postgresql, sqlite, dummy.
-$wgBugzillaCacheMins = 5; // Minutes to cache results (default: 5)
+// NOTE: $wgBugzillaUseCache has been removed. $wgBugzillaCacheType has been removed as well.
+// NOTE: This extension now relies on what cache is available through MediaWiki directly;
+// NOTE: see $wgMainCacheType in LocalSettings.php
+
+$wgBugzillaCacheTimeOut = 5; // Minutes to cache results (default: 5)
 
 $wgBugzillaJqueryTable = true; // Use a jQuery table for display (default: true)
 
