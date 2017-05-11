@@ -1,0 +1,8 @@
+{
+	"@metadata": {
+		"authors": [
+			"Dennis Roczek"
+		]
+	},
+	"bugzilla-desc" => "Diese Erweiterung erlaubt die lesende Integration mit Bugzilla's REST API"
+}

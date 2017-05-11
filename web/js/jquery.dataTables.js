@@ -964,6 +964,7 @@
 			 * Notes:    The words in the format _VAR_ are variables which are dynamically replaced
 			 *   by javascript
 			 */
+			 //TODO: replace these entries with the i18n keywords
 			this.oLanguage = {
 				"sProcessing": "Processing...",
 				"sLengthMenu": "Show _MENU_ entries",
