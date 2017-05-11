@@ -84,8 +84,19 @@ class BugzillaBugListing extends BugzillaOutput {
         $this->response->full_query_url = $this->query->full_query_url();
 
         // Set the bug data for the templates
-        if(isset($this->query->data['bugs']) && count($this->query->data['bugs']) > 0) {
-            $this->response->bugs = $this->query->data['bugs'];
+        if(isset($this->query->data['bugs']) &&
+           count($this->query->data['bugs']) > 0) {
+            $bugs = $this->query->data['bugs'];
+            // Randomize the bugs, if requested.
+            if(isset($this->config['randomize'])) {
+                shuffle($bugs);
+            }
+
+            // If a limit has been set, use it.
+            if(isset($this->config['limit'])) {
+                $bugs = array_slice($bugs, 0, (int)$this->config['limit']);
+            }
+            $this->response->bugs = $bugs;
         }
 
         $this->response->fields = $this->query->options['include_fields'];
