@@ -253,15 +253,13 @@ class BugzillaRESTQuery extends BugzillaBaseQuery {
         $ua->setHeader('Accept', 'application/json');
         $ua->setHeader('Content-Type', 'application/json');
 
-        // This is basically straight from the HTTP/Request2 docs
         try {
             $response = $ua->execute();
             if (200 == $ua->getStatus()) {
                 $this->data = json_decode($ua->getContent(), TRUE);
             } else {
-                $this->error = 'Server returned unexpected HTTP status: ' .
-                               $ua->getStatus() . ' ' .
-                               $ua->getReasonPhrase();
+                $errors = $response->getStatusValue()->getErrors();
+                $this->error = $errors[0];
                 return;
             }
         } catch (MWException $e) {
@@ -404,12 +402,11 @@ X;
                     $this->data['bugs'][] = $bug;
                 }
             } else {
-                $this->error = 'Server returned unexpected HTTP status: ' .
-                               $ua->getStatus() . ' ' .
-                               $ua->getReasonPhrase();
+                $errors = $response->getStatusValue()->getErrors();
+                $this->error = $errors[0];
                 return;
             }
-        } catch (HTTP_Request2_Exception $e) {
+        } catch (MWException $e) {
             $this->error = $e->getMessage();
             return;
         }
