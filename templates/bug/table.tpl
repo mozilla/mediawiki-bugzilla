@@ -64,7 +64,10 @@
                     }
 
                     // Print out the data
-                    $data = $bug[$field];
+                    $data = 'n/a';
+                    if ( isset( $bug[$field] ) ) {
+                        $data = $bug[$field];
+                    }
                     require($subtemplate);
 
                     echo "</td>\n";

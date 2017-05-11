@@ -1,2 +1,8 @@
 *.sw*
 vendor/
+*~
+\#*#
+.#*
+.tramp_history
+
+charts
