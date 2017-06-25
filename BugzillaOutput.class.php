@@ -84,7 +84,7 @@ class BugzillaBugListing extends BugzillaOutput {
         $this->response->full_query_url = $this->query->full_query_url();
 
         // Set the bug data for the templates
-        if(isset($this->query->data['bugs']) && count($this->query->data['bugs']) > 0) {
+        if( !empty($this->query->data['bugs']) ) {
             $this->response->bugs = $this->query->data['bugs'];
         }
 
@@ -135,19 +135,16 @@ abstract class BugzillaGraph extends BugzillaOutput {
         include_once 'pchart/class/pData.class.php';
 
         global $wgBugzillaChartUrl;
-        global $wgBugzillaCacheTimeOut;
-        global $wgMainCacheType;
 
-        $fileName = sha1(serialize([$this->query->id, $this->_get_size(), get_class($this)]));
-        $key = implode(':', ['mediawiki', 'bugzilla', 'chart', $fileName]);
-        $cache = wfGetCache($wgMainCacheType);
-
-        // We use the cache only to invalidate/recompute the charts:
-        // the key is its own value. Only the TTL is useful here.
-        if ($cache->get($key) === false) {
-            if ($this->generate_chart($fileName)) {
-                $cache->set($key, $fileName);
-            }
+        $key = md5($this->query->id . $this->_get_size() . get_class($this));
+        $cache = $this->_getCache();
+        if($result = $cache->get($key)) {
+            $image = $result;
+            $this->response->image = $wgBugzillaChartUrl . '/' . $image;
+        } elseif ( !empty( $this->query->data['data'] ) ) {
+            $this->response->image = $wgBugzillaChartUrl . '/' . $this->generate_chart($key) . '.png';
+        } else {
+            $this->response->image = "";
         }
 
         $this->response->image = $wgBugzillaChartUrl.'/'.$fileName.'.png';
@@ -159,6 +156,9 @@ class BugzillaPieGraph extends BugzillaGraph {
 
     public function generate_chart($chart_name)
     {
+        if ( empty( $this->query->data['data'] ) ) {
+            return "";
+        }
         include_once "pchart/class/pPie.class.php";
 
         global $wgBugzillaChartStorage;
@@ -233,6 +233,9 @@ class BugzillaBarGraph extends BugzillaGraph {
     public function generate_chart($chart_name)
     {
         global $wgBugzillaChartStorage, $wgBugzillaFontStorage;
+        if ( empty( $this->query->data['data'] ) ) {
+            return "";
+        }
         $pData = new pData();
         $pData->addPoints($this->query->data['data'], 'Counts');
         $pData->setAxisName(0, 'Bugs');
