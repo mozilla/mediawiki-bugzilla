@@ -199,7 +199,7 @@ abstract class BugzillaBaseQuery {
         // - either {"include_fields": ["A", "B", "C"]}
         // so we accept both.
         if (!is_array($options['include_fields'])) {
-            $options['include_fields'] = explode(',', $options['include_fields']);
+            $options['include_fields'] = preg_split("/\\s*,\\s*/", $options['include_fields']);
         }
 
         return $options;
