@@ -41,6 +41,32 @@ abstract class BugzillaBaseQuery {
         return $this->id;
     }
 
+ 
+    protected function _build_querystring_pair($key, $val) {
+        return urlencode($key) . "=" . urlencode($val);
+    }
+
+    protected function _build_querystring($params) {
+        $buffer = array();
+        foreach ($params as $param_key => $param_val) {
+            if (is_array($param_val)) {
+                foreach ($param_val as $i => $v) {
+                    if (!is_int($i)) {
+                        # error handling here would be nice, but I'm not sure what mediawiki expects.
+                        continue;
+                    }
+                    $buffer []= $this->_build_querystring_pair($param_key, $v);
+                }
+            }
+            else {
+                $buffer []= $this->_build_querystring_pair($param_key, $param_val);
+            }
+        }
+
+        return join("&", $buffer);
+    }
+
+
     /**
      *
      * @param  Array  $options
@@ -190,9 +216,10 @@ abstract class BugzillaBaseQuery {
     public function full_query_url()
     {
         global $wgBugzillaURL;
-        return $wgBugzillaURL . '/buglist.cgi?' . http_build_query($this->options);
+        return $wgBugzillaURL . '/buglist.cgi?' . $this->_build_querystring($this->options);
     }
 }
+
 
 class BugzillaRESTQuery extends BugzillaBaseQuery {
 
@@ -234,7 +261,7 @@ class BugzillaRESTQuery extends BugzillaBaseQuery {
 
         // Add the requested query options to the request
         $ua = MWHttpRequest::factory( $this->url . '?'
-                                           . http_build_query( $this->options ),
+                                           . $this->_build_querystring( $this->options ),
                                            [
                                                'method' => 'GET',
                                                'follow_redirects' => true,
