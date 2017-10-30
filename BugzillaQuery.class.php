@@ -59,7 +59,7 @@ abstract class BugzillaBaseQuery {
                 }
             }
             else {
-                $buffer []= $this->_build_querystring_pair($param_key, $v);
+                $buffer []= $this->_build_querystring_pair($param_key, $param_val);
             }
         }
 
