@@ -146,6 +146,9 @@ abstract class BugzillaBaseQuery {
         $cache = wfGetCache($wgMainCacheType);
         $row = $cache->get($key);
 
+        # Caching is busted, turn it off for now
+        $row = FALSE;
+
         if ($row === false) {
                 $this->cached = false;
 
