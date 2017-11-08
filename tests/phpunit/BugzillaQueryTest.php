@@ -3,7 +3,9 @@
 require '../../Bugzilla.class.php';
 require '../../BugzillaQuery.class.php';
 
-class BugzillaQueryTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class BugzillaQueryTest extends TestCase
 {
     /**
      * @dataProvider prepareOptionsProvider
