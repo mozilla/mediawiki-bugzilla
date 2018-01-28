@@ -160,7 +160,7 @@ function BugzillaRender($input, array $args, Parser $parser, $frame=null ) {
  */
 
 // Remote API
-$wgBugzillaRESTURL     = 'https://bugzilla.mozilla.org/bzapi'; // The URL for your Bugzilla API installation
+$wgBugzillaRESTURL     = 'https://bugzilla.mozilla.org/rest/'; // The URL for your Bugzilla API installation
 $wgBugzillaURL         = 'https://bugzilla.mozilla.org'; // The URL for your Bugzilla installation
 $wgBugzillaTagName     = 'bugzilla'; // The tag name for your Bugzilla installation (default: 'bugzilla')
 $wgBugzillaMethod      = 'REST'; // XML-RPC and JSON-RPC may be supported later
