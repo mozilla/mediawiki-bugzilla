@@ -23,7 +23,7 @@ $wgBugzillaExtVersion = '1.0.0';
 $wgExtensionCredits['other'][] = array(
     'name'        => 'Bugzilla',
     'author'      => 'Christian Legnitto',
-    'url'         => 'https://github.com/LegNeato/mediawiki-bugzilla',
+    'url'         => 'https://github.com/mozilla/mediawiki-bugzilla',
     'descriptionmsg' => 'bugzilla-desc',
     'license-name' => 'MPL2',
     'version'     => $wgBugzillaExtVersion,
@@ -45,8 +45,7 @@ $wgResourceModules['ext.Bugzilla'] = array(
  */
 
 $cwd = dirname(__FILE__); // We don't need to do this more than once!
-
-$wgExtensionMessagesFiles['Bugzilla'] =  "$cwd/Bugzilla.i18n.php";
+$wgMessagesDirs['Bugzilla'] = __DIR__ . '/i18n';
 
 $wgAutoloadClasses['Bugzilla']           = $cwd . '/Bugzilla.class.php';
 $wgAutoloadClasses['BugzillaQuery']      = $cwd . '/BugzillaQuery.class.php';
