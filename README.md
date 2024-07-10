@@ -180,7 +180,3 @@ If your wiki page has the URL
     https://wiki.mozilla.org/PagePath/PageTitle
 The URL to edit your page is 
     https://wiki.mozilla.org/index.php?title=PagePath/PageTitle&action=edit
-
-TODO
-================================
-* Add more/smarter field display templates
