@@ -143,7 +143,8 @@ abstract class BugzillaBaseQuery {
         if ($this->error) { return; }
 
         $key = implode(':', ['mediawiki', 'bugzilla', 'bugs', sha1(serialize($this->id()))]);
-        $cache = wfGetCache($wgMainCacheType);
+        #$cache = wfGetCache($wgMainCacheType);
+        $cache = ObjectCache::getInstance($wgMainCacheType);
         $row = $cache->get($key);
 
         if ($row === false) {
