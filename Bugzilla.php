@@ -134,7 +134,8 @@ function BugzillaRender($input, array $args, Parser $parser, $frame=null ) {
 
     // We don't want the page to be cached
     // TODO: Not sure if we need this
-    $parser->disableCache();
+    # $parser->disableCache();   # Disabled since it is deprecated and no longer working
+    # $parser->getOutput()->updateCacheExpiry(0); # might be an alternative
 
     // TODO: Figure out to have the parser not do anything to our output
     // mediawiki docs are wrong :-(

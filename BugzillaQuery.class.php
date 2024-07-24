@@ -4,36 +4,44 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 // Factory class
-class BugzillaQuery {
-    public static function create($type, $options, $title) {
+class BugzillaQuery
+{
+    public static function create($type, $options, $title)
+    {
         global $wgBugzillaMethod;
 
-        switch ( strtolower( $wgBugzillaMethod ) ) {
-        case 'xml-rpc':  return new BugzillaXMLRPCQuery ($type, $options, $title); break;
-        case 'json-rpc': return new BugzillaJSONRPCQuery($type, $options, $title); break;
-        default:         return new BugzillaRESTQuery   ($type, $options, $title); break;
+        switch (strtolower($wgBugzillaMethod)) {
+            case 'xml-rpc':
+                return new BugzillaXMLRPCQuery ($type, $options, $title);
+            case 'json-rpc':
+                return new BugzillaJSONRPCQuery($type, $options, $title);
+            default:
+                return new BugzillaRESTQuery   ($type, $options, $title);
         }
     }
 }
 
 // Base class
-abstract class BugzillaBaseQuery {
+abstract class BugzillaBaseQuery
+{
 
-    public function __construct($type, $options, $title) {
+    public function __construct($type, $options, $title)
+    {
         global $wgBugzillaDefaultFields;
 
-        $this->type             = $type;
-        $this->title            = $title;
-        $this->url              = FALSE;
-        $this->id               = FALSE;
-        $this->error            = FALSE;
-        $this->data             = array();
+        $this->type = $type;
+        $this->title = $title;
+        $this->url = FALSE;
+        $this->id = FALSE;
+        $this->error = FALSE;
+        $this->data = array();
         $this->synthetic_fields = array();
-        $this->cached           = FALSE;
-        $this->options          = $this->prepare_options($options, $wgBugzillaDefaultFields);
+        $this->cached = FALSE;
+        $this->options = $this->prepare_options($options, $wgBugzillaDefaultFields);
     }
 
-    public function id() {
+    public function id()
+    {
         if (!$this->id) {
             $this->id = $this->_generate_id($this->options);
         }
@@ -41,12 +49,14 @@ abstract class BugzillaBaseQuery {
         return $this->id;
     }
 
- 
-    protected function _build_querystring_pair($key, $val) {
+
+    protected function _build_querystring_pair($key, $val)
+    {
         return urlencode($key) . "=" . urlencode($val);
     }
 
-    protected function _build_querystring($params) {
+    protected function _build_querystring($params)
+    {
         $buffer = array();
         foreach ($params as $param_key => $param_val) {
             if (is_array($param_val)) {
@@ -55,11 +65,10 @@ abstract class BugzillaBaseQuery {
                         # error handling here would be nice, but I'm not sure what mediawiki expects.
                         continue;
                     }
-                    $buffer []= $this->_build_querystring_pair($param_key, $v);
+                    $buffer [] = $this->_build_querystring_pair($param_key, $v);
                 }
-            }
-            else {
-                $buffer []= $this->_build_querystring_pair($param_key, $param_val);
+            } else {
+                $buffer [] = $this->_build_querystring_pair($param_key, $param_val);
             }
         }
 
@@ -69,15 +78,18 @@ abstract class BugzillaBaseQuery {
 
     /**
      *
-     * @param  Array  $options
+     * @param Array $options
      * @return String|false
      *
      * FIXME: Should we strtolower() the keys?
-    */
-    protected function _generate_id($options) {
+     */
+    protected function _generate_id($options)
+    {
 
         // No need to generate if there are errors
-        if( !empty($this->error) ) { return false; }
+        if (!empty($this->error)) {
+            return false;
+        }
 
         ksort($options);
 
@@ -103,12 +115,11 @@ abstract class BugzillaBaseQuery {
      *
      * See BugzillaQueryTest::testRebaseFields().
      *
-     * @param Array  $requested_fields
-     * @param Array  $default_fields
-     *
+     * @param Array $requested_fields
+     * @param $synthetic_fields
      * @return Array
-    */
-    public function rebase_fields($requested_fields, $synthetic_fields)
+     */
+    public function rebase_fields(array $requested_fields, $synthetic_fields): array
     {
         $fields = array_unique(array_merge($synthetic_fields, $requested_fields));
         sort($fields);
@@ -116,7 +127,7 @@ abstract class BugzillaBaseQuery {
         return $fields;
     }
 
-    public function rebased_options()
+    public function rebased_options(): array
     {
         $options = $this->options;
         $options['include_fields'] = $this->rebase_fields(
@@ -131,31 +142,33 @@ abstract class BugzillaBaseQuery {
      * Wrap around sub-classes actual fetch action, with caching.
      * Uses MediaWiki main cache strategy.
      *
-     * TODO: use ObjectCache::getLocalServerInstance() once MW >= 1.27
-     *
      * @return string
-    */
-    public function fetch() {
+     */
+    public function fetch()
+    {
 
         global $wgMainCacheType;
         global $wgBugzillaCacheTimeOut;
 
-        if ($this->error) { return; }
+        if ($this->error) {
+            return;
+        }
 
         $key = implode(':', ['mediawiki', 'bugzilla', 'bugs', sha1(serialize($this->id()))]);
-        $cache = wfGetCache($wgMainCacheType);
+        // TODO: since 1.43; use ObjectCacheFactory::getInstance instead.
+        $cache = ObjectCache::getInstance($wgMainCacheType);
         $row = $cache->get($key);
 
         if ($row === false) {
-                $this->cached = false;
+            $this->cached = false;
 
-                $this->_fetch_by_options();
-                $cache->set($key, base64_encode(serialize($this->data)), $wgBugzillaCacheTimeOut * 60);
+            $this->_fetch_by_options();
+            $cache->set($key, base64_encode(serialize($this->data)), $wgBugzillaCacheTimeOut * 60);
 
-                return $this->data;
+            return $this->data;
         } else {
-                $this->cached = true;
-                return $this->data = unserialize(base64_decode($row));
+            $this->cached = true;
+            return $this->data = unserialize(base64_decode($row));
         }
     }
 
@@ -166,10 +179,11 @@ abstract class BugzillaBaseQuery {
      * See BugzillaQueryTest::testPrepareOptions().
      *
      * @param String $query_options_raw
-     *
+     * @param array $default_fields
      * @return array prepared options array
-    */
-    public function prepare_options($query_options_raw, $default_fields = array()) {
+     */
+    public function prepare_options(string $query_options_raw, array $default_fields = array())
+    {
 
         $options = array();
         $query_options_raw = trim($query_options_raw);
@@ -187,9 +201,7 @@ abstract class BugzillaBaseQuery {
                 return $options;
             }
 
-            if (!isset($options['include_fields'])
-                || empty($options['include_fields'])) {
-
+            if (empty($options['include_fields'])) {
                 $options['include_fields'] = $default_fields;
             }
         }
@@ -213,7 +225,7 @@ abstract class BugzillaBaseQuery {
         $cache->set($this->id(), base64_encode(serialize($this->data)));
     }
 
-    public function full_query_url()
+    public function full_query_url(): string
     {
         global $wgBugzillaURL;
         return $wgBugzillaURL . '/buglist.cgi?' . $this->_build_querystring($this->options);
@@ -221,16 +233,18 @@ abstract class BugzillaBaseQuery {
 }
 
 
-class BugzillaRESTQuery extends BugzillaBaseQuery {
+class BugzillaRESTQuery extends BugzillaBaseQuery
+{
 
-    function __construct($type, $options, $title='') {
+    function __construct($type, $options, $title = '')
+    {
         global $wgBugzillaRESTURL;
         global $wgBugzillaDefaultFields;
 
         parent::__construct($type, $options, $title);
 
         // See what sort of REST query we are going to
-        switch( $type ) {
+        switch ($type) {
 
             // Whitelist
             case 'count':
@@ -247,27 +261,29 @@ class BugzillaRESTQuery extends BugzillaBaseQuery {
         }
     }
 
-    public function user_agent() {
+    public function user_agent()
+    {
         global $wgBugzillaExtVersion;
         global $wgVersion;
 
-        return 'MediawikiBugzilla/'.$wgBugzillaExtVersion
-            .' MediaWiki/'.$wgVersion
-            .' PHP/'.PHP_VERSION;
+        return 'MediawikiBugzilla/' . $wgBugzillaExtVersion
+            . ' MediaWiki/' . $wgVersion
+            . ' PHP/' . PHP_VERSION;
     }
 
     // Load data from the Bugzilla REST API
-    public function _fetch_by_options() {
+    public function _fetch_by_options()
+    {
 
         // Add the requested query options to the request
-        $ua = MWHttpRequest::factory( $this->url . '?'
-                                           . $this->_build_querystring( $this->options ),
-                                           [
-                                               'method' => 'GET',
-                                               'follow_redirects' => true,
-                                               // TODO: Not sure if I should do this
-                                               'ssl_verify_peer' => false
-                                           ], __METHOD__ );
+        $ua = MWHttpRequest::factory($this->url . '?'
+            . $this->_build_querystring($this->options),
+            [
+                'method' => 'GET',
+                'follow_redirects' => true,
+                // TODO: Not sure if I should do this
+                'ssl_verify_peer' => false
+            ], __METHOD__);
 
         // The REST API requires these
         $ua->setHeader('Accept', 'application/json');
@@ -288,18 +304,20 @@ class BugzillaRESTQuery extends BugzillaBaseQuery {
         }
 
         // Check for REST API errors
-        if( isset($this->data['error']) && !empty($this->data['error']) ) {
+        if (isset($this->data['error']) && !empty($this->data['error'])) {
             $this->error = "Bugzilla API returned an error: " .
-                           $this->data['message'];
+                $this->data['message'];
         }
     }
 }
 
 /**
-*/
-class BugzillaJSONRPCQuery extends BugzillaBaseQuery {
+ */
+class BugzillaJSONRPCQuery extends BugzillaBaseQuery
+{
 
-    function __construct($type, $options, $title='') {
+    function __construct($type, $options, $title = '')
+    {
 
         global $wgBugzillaURL;
         global $wgBugzillaDefaultFields;
@@ -310,7 +328,7 @@ class BugzillaJSONRPCQuery extends BugzillaBaseQuery {
         $this->url = $wgBugzillaURL . '/jsonrpc.cgi';
 
         // See what sort of REST query we are going to
-        switch( $type ) {
+        switch ($type) {
 
             // Whitelist
             case 'count':
@@ -325,39 +343,42 @@ class BugzillaJSONRPCQuery extends BugzillaBaseQuery {
     }
 
     // Load data from the Bugzilla JSONRPC API
-    public function _fetch_by_options() {
+    public function _fetch_by_options()
+    {
         $this->getJsonData('Bug.search', $this->rebased_options());
     }
 
-    protected function getJsonData($method, $params)
+    protected function getJsonData($method, $params): bool
     {
         $query = json_encode($params, true);
-        $url = $this->url."?method=$method&params=[".urlencode($query)."]";
+        $url = $this->url . "?method=$method&params=[" . urlencode($query) . "]";
 
         $req = MWHttpRequest::factory($url, array(
-                    'sslVerifyHost' => false,
-                    'sslVerifyCert' => false
-                  )
-              );
+                'sslVerifyHost' => false,
+                'sslVerifyCert' => false
+            )
+        );
         $status = $req->execute();
 
-        if(!$status->isOK()) {
-            $this->error = $res->getMessage();
+        if (!$status->isOK()) {
+            $this->error = $req->getMessage();
             return false;
         } else {
             $this->rawData = $req->getContent();
             $params = json_decode($this->rawData, true);
             $this->data = $params['result'];
             return true;
-       }
-   }
+        }
+    }
 }
 
 /**
-*/
-class BugzillaXMLRPCQuery extends BugzillaBaseQuery {
+ */
+class BugzillaXMLRPCQuery extends BugzillaBaseQuery
+{
 
-    function __construct($type, $options, $title='') {
+    function __construct($type, $options, $title = '')
+    {
 
         global $wgBugzillaURL;
         global $wgBugzillaDefaultFields;
@@ -368,7 +389,8 @@ class BugzillaXMLRPCQuery extends BugzillaBaseQuery {
     }
 
     // Load data from the Bugzilla XMLRPC API
-    public function _fetch_by_options() {
+    public function _fetch_by_options()
+    {
 
         $method = 'Bug.search';
         $struct = '';
@@ -390,12 +412,12 @@ class BugzillaXMLRPCQuery extends BugzillaBaseQuery {
 </methodCall>
 X;
 
-        $ua = MWHttpRequest::factory( $this->url, [
+        $ua = MWHttpRequest::factory($this->url, [
             'method' => 'POST',
             'follow_redirects' => true,
             // TODO: Not sure if I should do this
             'ssl_verify_peer' => false
-        ], __METHOD__ );
+        ], __METHOD__);
 
         $ua->setHeader('Accept', 'text/xml');
         $ua->setHeader('Content-Type', 'text/xml;charset=utf-8');
@@ -431,9 +453,9 @@ X;
             return;
         }
 
-        if( isset($this->data['error']) && !empty($this->data['error']) ) {
+        if (isset($this->data['error']) && !empty($this->data['error'])) {
             $this->error = "Bugzilla API returned an error: " .
-                           $this->data['message'];
+                $this->data['message'];
         }
     }
 }
