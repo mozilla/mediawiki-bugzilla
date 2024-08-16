@@ -40,15 +40,18 @@
             $base = dirname(__FILE__) . '/../../templates/fields/';
 
             foreach( $response->bugs as $bug ) {
+                if (!empty($bug['status'])) {
+                    if($bug['status'] == 'RESOLVED') {
+                        $resolved++;
+                    }
+                    if($bug['status'] == 'VERIFIED') {
+                        $verified++;
+                    }
 
-                if($bug['status'] == 'RESOLVED') {
-                    $resolved++;
+                    echo "<tr class='bugzilla-status-${bug['status']}'>";
+                } else {
+                    echo "<tr class='bugzilla-status-none'>";
                 }
-                if($bug['status'] == 'VERIFIED') {
-                    $verified++;
-                }
-
-                echo "<tr class='bugzilla-status-${bug['status']}'>";
                 foreach( $response->fields as $field ) {
                     echo "<td class='bugzilla-data-$field'>";
 
