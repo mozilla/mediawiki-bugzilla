@@ -140,7 +140,7 @@ abstract class BugzillaGraph extends BugzillaOutput {
 
         $fileName = sha1(serialize([$this->query->id, $this->_get_size(), get_class($this)]));
         $key = implode(':', ['mediawiki', 'bugzilla', 'chart', $fileName]);
-        $cache = wfGetCache($wgMainCacheType);
+        $cache = ObjectCache::getInstance($wgMainCacheType);
 
         // We use the cache only to invalidate/recompute the charts:
         // the key is its own value. Only the TTL is useful here.
