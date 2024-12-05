@@ -176,11 +176,6 @@ $wgBugzillaCacheTimeOut = 5; // Minutes to cache results (default: 5)
 
 $wgBugzillaJqueryTable = true; // Use a jQuery table for display (default: true)
 
-// Charts
-$wgBugzillaChartStorage = __DIR__ . '/charts'; // Location to store generated bug charts
-$wgBugzillaFontStorage = __DIR__ . '/pchart/fonts'; // Path to font directory for font data
-$wgBugzillaChartUrl = $wgScriptPath . '/extensions/Bugzilla/charts'; // The URL to use to display charts
-
 // The default fields to display
 $wgBugzillaDefaultFields = array(
     'id',

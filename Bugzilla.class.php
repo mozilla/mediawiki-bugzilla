@@ -26,9 +26,6 @@ class Bugzilla {
         $classes = [
             'list'   => 'List',
             'number' => 'Number',
-            'bar'    => 'BarGraph',
-            'vbar'   => 'VerticalBarGraph',
-            'pie'    => 'PieGraph',
             'inline' => 'Inline',
             'table'  => 'Table',
         ];

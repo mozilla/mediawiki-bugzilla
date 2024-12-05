@@ -49,9 +49,6 @@ Valid bugzilla tag options are:
 * type: ``"bug"`` or ``"count"`` (defaults to bug)
 * For type bug:
     * display: ``"table"`` or ``"list"`` or `"count"` (defaults to table)
-* For type count:
-    * display: ``"bar"`` or ``"pie"``
-    * size: ``"small"``, ``medium"`` or ``"large"`` (defaults to large)
 * stats: ``"show"`` or ``"hide"`` (defaults to "show")
 
 
@@ -123,57 +120,14 @@ and b) display those columns.
 
 ![Screenshot of the above](http://i.imgur.com/p3u7r.png "Screenshot of the above")
 
-
-Charting
-================================
-
-There is also _some_ support for charting:
-
-    <bugzilla type="count" display="bar">
-        {
-            "whiteboard": "[snappy:p1]",
-            "x_axis_field": "status"
-        }
-    </bugzilla>
-
-Screenshot of the above:
-
-![Screenshot of the above](http://i.imgur.com/tDUZ1.png "Screenshot of the above")
-
-    <bugzilla type="count" display="pie">
-    {
-        "whiteboard": "[mediawiki-bugzilla]",
-        "x_axis_field": "status"
-    }
-    </bugzilla>
-    <bugzilla type="count" display="pie" size="medium">
-    {
-        "whiteboard": "[mediawiki-bugzilla]",
-        "x_axis_field": "status"
-    }
-    </bugzilla>
-    <bugzilla type="count" display="pie" size="small">
-    {
-        "whiteboard": "[mediawiki-bugzilla]",
-        "x_axis_field": "status"
-    }
-    </bugzilla>
-
-Screenshot of the above:
-
-![Screenshot of the above](http://i.imgur.com/mobHA.png "Screenshot of the above")
-
-
 Limitations
 ================================
 
 * This extension (by design) is read-only
 * This extension currently queries as a public (not logged in) user
-* Charts are fairly hardcoded and don't work in many cases
 
 Known Issues
 ================================
-* The __size__ attribute only works on pie charts
 * Rendering a page with an uncached query can take a bit
 * Large queries may exceed the allocated memory causing a blank page to be displayed. In this case you can recover by editing the page as follows:
 If your wiki page has the URL 
