@@ -161,7 +161,7 @@
          if ( $Layout == RADAR_LAYOUT_STAR )
           {
            $Color      = array("R"=>$BackgroundR,"G"=>$BackgroundG,"B"=>$BackgroundB,"Alpha"=>$BackgroundAlpha);
-           $PointArray = "";
+           $PointArray = [];
            for($i=0;$i<=360;$i=$i+(360/$Points))
             {
              $PointArray[] = cos(deg2rad($i+$AxisRotation)) * $EdgeHeight + $CenterX;
@@ -187,7 +187,7 @@
            for($j=$Segments;$j>=1;$j--)
             {
              $Color      = array("R"=>$BackgroundGradient["StartR"]+$GradientROffset*$j,"G"=>$BackgroundGradient["StartG"]+$GradientGOffset*$j,"B"=>$BackgroundGradient["StartB"]+$GradientBOffset*$j,"Alpha"=>$BackgroundGradient["StartAlpha"]+$GradientAlphaOffset*$j);
-             $PointArray = "";
+             $PointArray = [];
 
              for($i=0;$i<=360;$i=$i+(360/$Points))
               {
@@ -349,7 +349,7 @@
          if ($PolyAlpha != NULL)
           $Color = array("R"=>$Palette[$ID]["R"],"G"=>$Palette[$ID]["G"],"B"=>$Palette[$ID]["B"],"Alpha"=>$PolyAlpha,"Surrounding"=>$PointSurrounding);
 
-         $PointsArray = "";
+         $PointsArray = [];
          for($i=0; $i<count($Points);$i++) 
           { $PointsArray[] = $Points[$i][0]; $PointsArray[] = $Points[$i][1]; }
          $Object->drawPolygon($PointsArray,$Color);
@@ -580,7 +580,7 @@
         {
          $LabelX = cos(deg2rad($i+$AxisRotation)) * ($EdgeHeight+$LabelPadding+$TicksLength) + $CenterX;
          $LabelY = sin(deg2rad($i+$AxisRotation)) * ($EdgeHeight+$LabelPadding+$TicksLength) + $CenterY;
-         $Label = $i."°";
+         $Label = $i."ï¿½";
 
          if ( $LabelPos == RADAR_LABELS_ROTATED )
           $Object->drawText($LabelX,$LabelY,$Label,array("Angle"=>(360-$i),"Align"=>TEXT_ALIGN_BOTTOMMIDDLE));
@@ -633,7 +633,7 @@
          if ($PolyAlpha != NULL)
           $Color = array("R"=>$Palette[$ID]["R"],"G"=>$Palette[$ID]["G"],"B"=>$Palette[$ID]["B"],"Alpha"=>$PolyAlpha,"Surrounding"=>$PointSurrounding);
 
-         $PointsArray = "";
+         $PointsArray = [];
          for($i=0; $i<count($Points);$i++) 
           { $PointsArray[] = $Points[$i][0]; $PointsArray[] = $Points[$i][1]; }
 

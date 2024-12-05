@@ -296,7 +296,7 @@
        else
         $Description = "No description";
 
-       $Series = "";
+       $Series = [];
        $Series[] = array("Format"=>$Color,"Caption"=>$Caption);
 
        if ( $Data["Orientation"] == SCALE_POS_LEFTRIGHT )

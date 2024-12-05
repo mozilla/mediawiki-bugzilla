@@ -343,7 +343,7 @@
       }
      elseif( $this->ImageMapStorageMode == IMAGE_MAP_STORAGE_FILE )
       {
-       $TempArray = "";
+       $TempArray = [];
        $Handle    = @fopen($this->ImageMapStorageFolder."/".$this->ImageMapFileName.".map", "r");
        if ($Handle)
         {
@@ -381,7 +381,7 @@
       }
      elseif( $this->ImageMapStorageMode == IMAGE_MAP_STORAGE_FILE )
       {
-       $TempArray = "";
+       $TempArray = [];
        $Handle    = @fopen($this->ImageMapStorageFolder."/".$this->ImageMapFileName.".map", "r");
        if ($Handle)
         {
@@ -445,7 +445,7 @@
    /* Reverse an array of points */
    function reversePlots($Plots)
     {
-     $Result = "";
+     $Result = [];
      for($i=count($Plots)-2;$i>=0;$i=$i-2) { $Result[] = $Plots[$i]; $Result[] = $Plots[$i+1]; }
      return($Result);
     }

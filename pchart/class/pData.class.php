@@ -68,7 +68,7 @@
    /* Class creator */
    function pData()
     {
-     $this->Data = "";
+     $this->Data = [];
      $this->Data["XAxisDisplay"]	= AXIS_FORMAT_DEFAULT;
      $this->Data["XAxisFormat"]		= NULL;
      $this->Data["XAxisName"]		= NULL;

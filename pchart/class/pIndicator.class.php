@@ -226,7 +226,7 @@
               }
              elseif( $ValueDisplay == INDICATOR_VALUE_LABEL )
               {
-               $Caption = "";
+               $Caption = [];
                $Caption[] = array("Format"=>array("R"=>$Settings["R"],"G"=>$Settings["G"],"B"=>$Settings["B"],"Alpha"=>100),"Caption"=>$Value.$Unit);
                $this->pChartObject->drawLabelBox(floor($X1),floor($Y)+2,"Value - ".$Settings["Caption"],$Caption);
               }
